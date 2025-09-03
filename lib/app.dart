@@ -1,6 +1,4 @@
-// lib/app.dart
 import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart'; // pas besoin pour l’instant
 import 'common/theme.dart';
 import 'router/app_router.dart';
 
