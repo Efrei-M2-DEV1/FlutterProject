@@ -2,98 +2,249 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'app_colors.dart';
-import 'app_text_styles.dart';
 
-/// Configuration complète du thème de l'application
-///
-/// Cette classe est CRUCIALE pour ton rôle UI/UX !
-/// Elle centralise TOUS les aspects visuels de l'app :
-/// - Couleurs, typographie, formes, espacements
-/// - Style des composants (boutons, champs, cartes...)
-/// - Cohérence visuelle dans toute l'application
+/// Configuration des thèmes de l'application
 class AppTheme {
-  // ===== ESPACEMENTS STANDARDISÉS =====
-  // Utilise toujours ces valeurs pour l'espacement
-  static const EdgeInsets paddingXS = EdgeInsets.all(4);
-  static const EdgeInsets paddingSmall = EdgeInsets.all(8);
-  static const EdgeInsets paddingMedium = EdgeInsets.all(16); // Le plus utilisé
-  static const EdgeInsets paddingLarge = EdgeInsets.all(24);
-  static const EdgeInsets paddingXL = EdgeInsets.all(32);
-
-  // ===== BORDURES ARRONDIES =====
+  // ===== RAYONS DE BORDURE =====
   static const BorderRadius radiusSmall = BorderRadius.all(Radius.circular(8));
   static const BorderRadius radiusMedium = BorderRadius.all(
     Radius.circular(12),
   );
   static const BorderRadius radiusLarge = BorderRadius.all(Radius.circular(16));
+  static const BorderRadius radiusXLarge = BorderRadius.all(
+    Radius.circular(24),
+  );
 
-  // ===== DURÉES D'ANIMATION =====
-  static const Duration animationFast = Duration(milliseconds: 150);
-  static const Duration animationNormal = Duration(milliseconds: 300);
+  // ===== ESPACEMENT =====
+  static const EdgeInsets paddingSmall = EdgeInsets.all(8);
+  static const EdgeInsets paddingMedium = EdgeInsets.all(16);
+  static const EdgeInsets paddingLarge = EdgeInsets.all(24);
 
-  /// Thème principal de l'application (mode clair)
+  // ===== OMBRES =====
+  static List<BoxShadow> get shadowSmall => [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.05),
+      blurRadius: 4,
+      offset: const Offset(0, 2),
+    ),
+  ];
+
+  static List<BoxShadow> get shadowMedium => [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.1),
+      blurRadius: 8,
+      offset: const Offset(0, 4),
+    ),
+  ];
+
+  static List<BoxShadow> get shadowLarge => [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.15),
+      blurRadius: 16,
+      offset: const Offset(0, 8),
+    ),
+  ];
+
+  // ===== THÈME CLAIR =====
   static ThemeData get lightTheme {
     return ThemeData(
-      // ===== CONFIGURATION MATERIAL 3 =====
-      useMaterial3: true, // Nouveau design system Google
-      // ===== SCHÉMA DE COULEURS =====
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.primary, // Couleur de base pour générer la palette
-        brightness: Brightness.light,
+      useMaterial3: true,
+      brightness: Brightness.light,
+
+      // Couleurs principales
+      colorScheme: const ColorScheme.light(
         primary: AppColors.primary,
-        onPrimary: AppColors.onPrimary,
         secondary: AppColors.secondary,
-        onSecondary: AppColors.onSecondary,
-        surface: AppColors.surface,
-        onSurface: AppColors.onSurface,
-        background: AppColors.background,
-        onBackground: AppColors.onBackground,
+        tertiary: AppColors.tertiary,
+        surface: AppColors.lightSurface,
+        background: AppColors.lightBackground,
         error: AppColors.error,
+        onPrimary: Colors.white,
+        onSecondary: Colors.white,
+        onSurface: AppColors.lightOnSurface,
+        onBackground: AppColors.lightOnSurface,
+        onError: Colors.white,
+        outline: AppColors.lightOutline,
+        surfaceVariant: AppColors.lightSurfaceVariant,
+        onSurfaceVariant: AppColors.lightOnSurfaceVariant,
       ),
 
-      // ===== TYPOGRAPHIE GLOBALE =====
-      textTheme: const TextTheme(
-        headlineLarge: AppTextStyles.headlineLarge,
-        headlineMedium: AppTextStyles.headlineMedium,
-        titleLarge: AppTextStyles.titleLarge,
-        titleMedium: AppTextStyles.titleMedium,
-        bodyLarge: AppTextStyles.bodyLarge,
-        bodyMedium: AppTextStyles.bodyMedium,
-        bodySmall: AppTextStyles.bodySmall,
-      ),
-
-      // ===== STYLE DE L'APP BAR =====
+      // Configuration de l'AppBar
       appBarTheme: const AppBarTheme(
-        elevation: 0, // Pas d'ombre par défaut
-        scrolledUnderElevation: 1, // Légère ombre au scroll
-        backgroundColor: AppColors.background,
-        foregroundColor: AppColors.onBackground,
-        titleTextStyle: AppTextStyles.titleLarge,
-
-        // Configuration de la barre de statut (Android/iOS)
-        systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.dark,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        iconTheme: IconThemeData(color: AppColors.lightOnSurface),
+        titleTextStyle: TextStyle(
+          color: AppColors.lightOnSurface,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
         ),
       ),
 
-      // ===== STYLE DES CARTES =====
+      // Configuration des cartes
       cardTheme: CardThemeData(
-        elevation: 2, // Légère ombre
-        shadowColor: AppColors.primary.withOpacity(0.1), // Ombre colorée
-        shape: const RoundedRectangleBorder(
-          borderRadius: radiusLarge, // Coins arrondis
+        color: AppColors.lightSurface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: radiusMedium,
+          side: const BorderSide(color: AppColors.lightOutline, width: 1),
         ),
-        color: AppColors.surface,
-        margin: paddingSmall, // Espacement autour des cartes
       ),
 
-      // ===== STYLE DU BOUTON FLOTTANT =====
+      // Configuration des boutons
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(borderRadius: radiusMedium),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        ),
+      ),
+
+      // Configuration des champs de texte
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: AppColors.lightSurfaceVariant,
+        border: OutlineInputBorder(
+          borderRadius: radiusMedium,
+          borderSide: const BorderSide(color: AppColors.lightOutline),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: radiusMedium,
+          borderSide: const BorderSide(color: AppColors.lightOutline),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: radiusMedium,
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: radiusMedium,
+          borderSide: const BorderSide(color: AppColors.error),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: radiusMedium,
+          borderSide: const BorderSide(color: AppColors.error, width: 2),
+        ),
+      ),
+
+      // Configuration du FAB
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        elevation: 4,
         backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.onPrimary,
-        shape: RoundedRectangleBorder(borderRadius: radiusLarge),
+        foregroundColor: Colors.white,
+        elevation: 4,
+      ),
+
+      // Configuration des bottom sheets
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: AppColors.lightSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+        ),
+      ),
+    );
+  }
+
+  // ===== THÈME SOMBRE =====
+  static ThemeData get darkTheme {
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+
+      // Couleurs principales
+      colorScheme: const ColorScheme.dark(
+        primary: AppColors.primary,
+        secondary: AppColors.secondary,
+        tertiary: AppColors.tertiary,
+        surface: AppColors.darkSurface,
+        background: AppColors.darkBackground,
+        error: AppColors.error,
+        onPrimary: Colors.white,
+        onSecondary: Colors.white,
+        onSurface: AppColors.darkOnSurface,
+        onBackground: AppColors.darkOnSurface,
+        onError: Colors.white,
+        outline: AppColors.darkOutline,
+        surfaceVariant: AppColors.darkSurfaceVariant,
+        onSurfaceVariant: AppColors.darkOnSurfaceVariant,
+      ),
+
+      // Configuration de l'AppBar
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+        iconTheme: IconThemeData(color: AppColors.darkOnSurface),
+        titleTextStyle: TextStyle(
+          color: AppColors.darkOnSurface,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+
+      // Configuration des cartes
+      cardTheme: CardThemeData(
+        color: AppColors.darkSurface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: radiusMedium,
+          side: const BorderSide(color: AppColors.darkOutline, width: 1),
+        ),
+      ),
+
+      // Configuration des boutons
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(borderRadius: radiusMedium),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        ),
+      ),
+
+      // Configuration des champs de texte
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: AppColors.darkSurfaceVariant,
+        border: OutlineInputBorder(
+          borderRadius: radiusMedium,
+          borderSide: const BorderSide(color: AppColors.darkOutline),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: radiusMedium,
+          borderSide: const BorderSide(color: AppColors.darkOutline),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: radiusMedium,
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: radiusMedium,
+          borderSide: const BorderSide(color: AppColors.error),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: radiusMedium,
+          borderSide: const BorderSide(color: AppColors.error, width: 2),
+        ),
+      ),
+
+      // Configuration du FAB
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        elevation: 4,
+      ),
+
+      // Configuration des bottom sheets
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: AppColors.darkSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+        ),
       ),
     );
   }

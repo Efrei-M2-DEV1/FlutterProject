@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-// Imports des écrans (certains seront créés par tes collègues)
+// Imports des écrans
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/tasks/presentation/screens/task_detail_screen.dart';

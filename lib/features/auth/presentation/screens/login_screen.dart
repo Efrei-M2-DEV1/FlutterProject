@@ -204,19 +204,27 @@ class _LoginScreenState extends State<LoginScreen>
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Titre du formulaire
-            const Text(
+            Text(
               'Connexion',
-              style: AppTextStyles.titleLarge,
+              style: AppTextStyles.titleLarge(context),
               textAlign: TextAlign.center,
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 8),
+
+            Text(
+              'Connectez-vous pour accéder à vos tâches',
+              style: AppTextStyles.bodyMedium(context),
+              textAlign: TextAlign.center,
+            ),
+
+            const SizedBox(height: 32),
 
             // Champ email
             CustomTextField(
               controller: _emailController,
               label: 'Email',
-              hint: 'exemple@email.com',
+              hint: 'votre.email@exemple.com',
               keyboardType: TextInputType.emailAddress,
               prefixIcon: Icons.email_outlined,
               validator: _validateEmail,
@@ -229,11 +237,11 @@ class _LoginScreenState extends State<LoginScreen>
               controller: _passwordController,
               label: 'Mot de passe',
               hint: 'Votre mot de passe',
-              obscureText: _obscurePassword,
               prefixIcon: Icons.lock_outlined,
+              obscureText: !_obscurePassword,
               suffixIcon: IconButton(
                 icon: Icon(
-                  _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                  _obscurePassword ? Icons.visibility_off : Icons.visibility,
                 ),
                 onPressed: () =>
                     setState(() => _obscurePassword = !_obscurePassword),
@@ -248,6 +256,19 @@ class _LoginScreenState extends State<LoginScreen>
               onPressed: _isLoading ? null : _handleLogin,
               isLoading: _isLoading,
               child: const Text('Se connecter'),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Lien d'inscription
+            TextButton(
+              onPressed: () {
+                // Navigation vers inscription si nécessaire
+              },
+              child: Text(
+                'Pas encore de compte ? S\'inscrire',
+                style: AppTextStyles.bodyMedium(context),
+              ),
             ),
           ],
         ),

@@ -73,7 +73,7 @@ class CustomTextField extends StatelessWidget {
             // Texte d'aide
             hintText: hint,
             hintStyle: TextStyle(
-              color: AppColors.onSurfaceVariant.withOpacity(0.7),
+              color: AppColors.getOnSurfaceVariant(context).withOpacity(0.7),
             ),
 
             // Icônes
@@ -84,7 +84,7 @@ class CustomTextField extends StatelessWidget {
 
             // Style du conteneur
             filled: true,
-            fillColor: AppColors.surfaceVariant,
+            fillColor: AppColors.getSurfaceVariant(context),
 
             // Bordures
             border: OutlineInputBorder(

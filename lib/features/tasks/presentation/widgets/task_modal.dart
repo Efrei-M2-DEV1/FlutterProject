@@ -107,9 +107,9 @@ class _TaskModalState extends State<TaskModal> {
     return Container(
       // ✅ HAUTEUR FIXE pour éviter les problèmes de contraintes
       height: MediaQuery.of(context).size.height * 0.9,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+      decoration: BoxDecoration(
+        color: AppColors.surface, // ✅ Couleur dynamique
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
       ),
       child: Column(
         children: [
@@ -260,12 +260,12 @@ class _TaskModalState extends State<TaskModal> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Priorité',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: AppColors.onSurface,
+            color: AppColors.onSurface, // ✅ Couleur dynamique
           ),
         ),
 
@@ -321,12 +321,12 @@ class _TaskModalState extends State<TaskModal> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Date d\'échéance (optionnel)',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: AppColors.onSurface,
+            color: AppColors.onSurface, // ✅ Couleur dynamique
           ),
         ),
 
@@ -337,7 +337,7 @@ class _TaskModalState extends State<TaskModal> {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.surfaceVariant,
+              color: AppColors.surfaceVariant, // ✅ Couleur dynamique
               borderRadius: AppTheme.radiusMedium,
               border: Border.all(color: AppColors.primary.withOpacity(0.2)),
             ),
@@ -347,7 +347,7 @@ class _TaskModalState extends State<TaskModal> {
                   Icons.calendar_today,
                   color: _selectedDueDate != null
                       ? AppColors.primary
-                      : AppColors.onSurfaceVariant,
+                      : AppColors.onSurfaceVariant, // ✅ Couleur dynamique
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -357,10 +357,11 @@ class _TaskModalState extends State<TaskModal> {
                         : 'Sélectionner une date d\'échéance',
                     style: TextStyle(
                       color: _selectedDueDate != null
-                          ? AppColors.onSurface
-                          : AppColors.onSurfaceVariant,
+                          ? AppColors
+                                .onSurface // ✅ Couleur dynamique
+                          : AppColors.onSurfaceVariant, // ✅ Couleur dynamique
                       fontWeight: _selectedDueDate != null
-                          ? FontWeight.w600
+                          ? FontWeight.w500
                           : FontWeight.normal,
                     ),
                   ),

@@ -3,90 +3,99 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme.dart';
 
-/// Bouton personnalisé et réutilisable
-///
-/// Fonctionnalités :
-/// - Design cohérent avec le thème
-/// - État de chargement intégré
-/// - Variantes de style (primary, secondary, outline)
-/// - Tailles personnalisables
-/// - Animations fluides
+enum ButtonVariant { primary, secondary, outline, text }
+
+/// Bouton personnalisé avec plusieurs variantes
 class CustomButton extends StatelessWidget {
-  final VoidCallback? onPressed;
   final Widget child;
-  final bool isLoading;
+  final VoidCallback? onPressed;
   final ButtonVariant variant;
-  final ButtonSize size;
   final bool expanded;
+  final EdgeInsets? padding;
+  final bool isLoading;
 
   const CustomButton({
     super.key,
-    required this.onPressed,
     required this.child,
-    this.isLoading = false,
+    this.onPressed,
     this.variant = ButtonVariant.primary,
-    this.size = ButtonSize.medium,
     this.expanded = true,
+    this.padding,
+    this.isLoading = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: expanded ? double.infinity : null,
-      height: _getHeight(),
-      child: ElevatedButton(
-        onPressed: isLoading ? null : onPressed,
-        style: _getButtonStyle(),
-        child: isLoading ? _buildLoadingWidget() : child,
-      ),
-    );
-  }
+    Widget button = _buildButton(context);
 
-  /// Hauteur selon la taille
-  double _getHeight() {
-    switch (size) {
-      case ButtonSize.small:
-        return 40;
-      case ButtonSize.medium:
-        return 48;
-      case ButtonSize.large:
-        return 56;
+    if (expanded) {
+      return SizedBox(width: double.infinity, child: button);
     }
+    return button;
   }
 
-  /// Style du bouton selon la variante
-  ButtonStyle _getButtonStyle() {
+  Widget _buildButton(BuildContext context) {
     switch (variant) {
       case ButtonVariant.primary:
-        return ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.onPrimary,
-          elevation: 2,
-          shadowColor: AppColors.primary.withOpacity(0.3),
-          shape: RoundedRectangleBorder(borderRadius: AppTheme.radiusMedium),
+        return ElevatedButton(
+          onPressed: isLoading ? null : onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.onPrimary,
+            elevation: 0,
+            shape: RoundedRectangleBorder(borderRadius: AppTheme.radiusMedium),
+            padding:
+                padding ??
+                const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          ),
+          child: isLoading ? _buildLoader() : child,
         );
 
       case ButtonVariant.secondary:
-        return ElevatedButton.styleFrom(
-          backgroundColor: AppColors.surfaceVariant,
-          foregroundColor: AppColors.onSurface,
-          elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: AppTheme.radiusMedium),
+        return ElevatedButton(
+          onPressed: isLoading ? null : onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.getSurfaceVariant(context),
+            foregroundColor: AppColors.getOnSurface(context),
+            elevation: 0,
+            shape: RoundedRectangleBorder(borderRadius: AppTheme.radiusMedium),
+            padding:
+                padding ??
+                const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          ),
+          child: isLoading ? _buildLoader() : child,
         );
 
       case ButtonVariant.outline:
-        return ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          foregroundColor: AppColors.primary,
-          elevation: 0,
-          side: const BorderSide(color: AppColors.primary),
-          shape: RoundedRectangleBorder(borderRadius: AppTheme.radiusMedium),
+        return OutlinedButton(
+          onPressed: isLoading ? null : onPressed,
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.primary,
+            side: const BorderSide(color: AppColors.primary),
+            shape: RoundedRectangleBorder(borderRadius: AppTheme.radiusMedium),
+            padding:
+                padding ??
+                const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          ),
+          child: isLoading ? _buildLoader() : child,
+        );
+
+      case ButtonVariant.text:
+        return TextButton(
+          onPressed: isLoading ? null : onPressed,
+          style: TextButton.styleFrom(
+            foregroundColor: AppColors.primary,
+            shape: RoundedRectangleBorder(borderRadius: AppTheme.radiusMedium),
+            padding:
+                padding ??
+                const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          ),
+          child: isLoading ? _buildLoader() : child,
         );
     }
   }
 
-  /// Widget de chargement
-  Widget _buildLoadingWidget() {
+  Widget _buildLoader() {
     return const SizedBox(
       width: 20,
       height: 20,
@@ -97,13 +106,3 @@ class CustomButton extends StatelessWidget {
     );
   }
 }
-
-/// Variantes de style du bouton
-enum ButtonVariant {
-  primary, // Fond coloré
-  secondary, // Fond gris
-  outline, // Bordure seulement
-}
-
-/// Tailles du bouton
-enum ButtonSize { small, medium, large }

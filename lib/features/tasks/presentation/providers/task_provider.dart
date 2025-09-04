@@ -73,12 +73,11 @@ class TaskProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Basculer l'état de completion d'une tâche ✅ MÉTHODE CORRIGÉE
+  /// Basculer l'état de completion d'une tâche
   void toggleTaskCompletion(String taskId) {
     final index = _tasks.indexWhere((task) => task.id == taskId);
     if (index != -1) {
-      _tasks[index] = _tasks[index]
-          .toggleCompleted(); // ✅ Maintenant ça marche !
+      _tasks[index] = _tasks[index].toggleCompleted();
       notifyListeners();
     }
   }

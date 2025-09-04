@@ -1,123 +1,107 @@
 import 'package:flutter/material.dart';
+
 import 'app_colors.dart';
 
-/// Styles de texte standardisés pour une cohérence visuelle
-/// 
-/// Pourquoi standardiser les styles de texte ?
-/// - Cohérence visuelle (même taille, même poids partout)
-/// - Accessibilité (tailles de texte appropriées)
-/// - Maintenance facile
-/// - Respect des guidelines Material Design
-abstract class AppTextStyles {
-  
-  // Police principale (système par défaut pour commencer)
-  static const String _fontFamily = 'Roboto';
-  
-  // ===== TITRES PRINCIPAUX =====
-  // Pour les titres d'écrans, de sections importantes
-  static const TextStyle headlineLarge = TextStyle(
-    fontSize: 32,                    // Grande taille pour l'impact
-    fontWeight: FontWeight.bold,     // Gras pour hiérarchiser
-    color: AppColors.onBackground,   // Couleur de base
-    fontFamily: _fontFamily,
-    height: 1.2,                     // Espacement entre lignes
+/// Styles de texte de l'application
+class AppTextStyles {
+  // ===== TITRES =====
+  static TextStyle headlineLarge(BuildContext context) => TextStyle(
+    fontSize: 32,
+    fontWeight: FontWeight.bold,
+    color: AppColors.getOnSurface(context),
   );
-  
-  static const TextStyle headlineMedium = TextStyle(
+
+  static TextStyle headlineMedium(BuildContext context) => TextStyle(
     fontSize: 28,
     fontWeight: FontWeight.bold,
-    color: AppColors.onBackground,
-    fontFamily: _fontFamily,
-    height: 1.3,
+    color: AppColors.getOnSurface(context),
   );
-  
-  // ===== TITRES DE SECTIONS =====
-  // Pour les titres d'AppBar, de cartes, etc.
-  static const TextStyle titleLarge = TextStyle(
-    fontSize: 22,
-    fontWeight: FontWeight.w600,     // Semi-bold
-    color: AppColors.onSurface,
-    fontFamily: _fontFamily,
-    height: 1.4,
-  );
-  
-  static const TextStyle titleMedium = TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
-    color: AppColors.onSurface,
-    fontFamily: _fontFamily,
-    height: 1.4,
-  );
-  
-  // ===== TEXTE COURANT =====
-  // Pour le contenu principal, descriptions, etc.
-  static const TextStyle bodyLarge = TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.normal,
-    color: AppColors.onSurface,
-    fontFamily: _fontFamily,
-    height: 1.5,                     // Plus d'espace pour la lisibilité
-  );
-  
-  static const TextStyle bodyMedium = TextStyle(
-    fontSize: 14,
-    fontWeight: FontWeight.normal,
-    color: AppColors.onSurface,
-    fontFamily: _fontFamily,
-    height: 1.5,
-  );
-  
-  static const TextStyle bodySmall = TextStyle(
-    fontSize: 12,
-    fontWeight: FontWeight.normal,
-    color: AppColors.onSurfaceVariant, // Plus clair pour info secondaire
-    fontFamily: _fontFamily,
-    height: 1.4,
-  );
-  
-  // ===== STYLES SPÉCIALISÉS POUR LES TÂCHES =====
-  // Styles métier spécifiques à l'app de tâches
-  
-  // Titre d'une tâche normale
-  static const TextStyle taskTitle = TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
-    color: AppColors.onSurface,
-    fontFamily: _fontFamily,
-    height: 1.4,
-  );
-  
-  // Titre d'une tâche terminée (barrée)
-  static const TextStyle taskTitleCompleted = TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
-    color: AppColors.onSurfaceVariant,   // Plus clair car terminée
-    fontFamily: _fontFamily,
-    height: 1.4,
-    decoration: TextDecoration.lineThrough, // Ligne barrée
-  );
-  
-  // Description d'une tâche
-  static const TextStyle taskDescription = TextStyle(
-    fontSize: 14,
-    fontWeight: FontWeight.normal,
-    color: AppColors.onSurfaceVariant,
-    fontFamily: _fontFamily,
-    height: 1.5,
-  );
-  
-  // Statistiques (compteurs de tâches)
-  static const TextStyle statValue = TextStyle(
+
+  static TextStyle headlineSmall(BuildContext context) => TextStyle(
     fontSize: 24,
-    fontWeight: FontWeight.bold,
-    color: Colors.white,              // Sur fond coloré
-    fontFamily: _fontFamily,
+    fontWeight: FontWeight.w600,
+    color: AppColors.getOnSurface(context),
   );
-  
-  static const TextStyle statLabel = TextStyle(
-    fontSize: 12,
+
+  // ===== TITRES DE SECTION =====
+  static TextStyle titleLarge(BuildContext context) => TextStyle(
+    fontSize: 22,
+    fontWeight: FontWeight.w600,
+    color: AppColors.getOnSurface(context),
+  );
+
+  static TextStyle titleMedium(BuildContext context) => TextStyle(
+    fontSize: 16,
     fontWeight: FontWeight.w500,
-    color: Colors.white70,            // Plus transparent
-    fontFamily: _fontFamily,
+    color: AppColors.getOnSurface(context),
+  );
+
+  static TextStyle titleSmall(BuildContext context) => TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    color: AppColors.getOnSurface(context),
+  );
+
+  // ===== ÉTIQUETTES =====
+  static TextStyle labelLarge(BuildContext context) => TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    color: AppColors.getOnSurfaceVariant(context),
+  );
+
+  // ===== CORPS DE TEXTE =====
+  static TextStyle bodyLarge(BuildContext context) => TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.normal,
+    color: AppColors.getOnSurface(context),
+  );
+
+  static TextStyle bodyMedium(BuildContext context) => TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.normal,
+    color: AppColors.getOnSurfaceVariant(context),
+  );
+
+  static TextStyle bodySmall(BuildContext context) => TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.normal,
+    color: AppColors.getOnSurfaceVariant(context),
+  );
+
+  // ===== STYLES SPÉCIAUX =====
+  static TextStyle taskTitle(BuildContext context) => TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: AppColors.getOnSurface(context),
+  );
+
+  static TextStyle taskTitleCompleted(BuildContext context) => TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: AppColors.getOnSurfaceVariant(context),
+    decoration: TextDecoration.lineThrough,
+  );
+
+  static TextStyle taskDescription(BuildContext context) =>
+      TextStyle(fontSize: 14, color: AppColors.getOnSurfaceVariant(context));
+
+  // ===== TITRE SECTION SPÉCIAL (pour "Filtrer les tâches") =====
+  static TextStyle sectionTitle(BuildContext context) => TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: AppColors.getSectionTitle(context),
+  );
+
+  // ===== STYLES CONSTANTS (pour compatibilité) =====
+  static const TextStyle constantTitleLarge = TextStyle(
+    fontSize: 22,
+    fontWeight: FontWeight.w600,
+    color: Color(0xFF1F2937), // Couleur fixe pour les const
+  );
+
+  static const TextStyle constantBodyMedium = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.normal,
+    color: Color(0xFF6B7280), // Couleur fixe pour les const
   );
 }

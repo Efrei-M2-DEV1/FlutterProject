@@ -4,7 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../providers/task_provider.dart';
 
-/// Carte de statistiques élégante avec animations
+/// Carte de statistiques avec animations
 class TaskStatsCard extends StatefulWidget {
   final TaskStats stats;
 

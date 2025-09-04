@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutterproject/core/theme/theme_provider.dart';
 import 'package:flutterproject/features/auth/data/auth_service.dart';
 import 'package:flutterproject/features/tasks/domain/models/task.dart';
+import 'package:flutterproject/shared/widgets/theme_switch.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/router/app_router.dart';
@@ -69,7 +71,6 @@ class _TaskListScreenState extends State<TaskListScreen>
       isDismissible: true,
       enableDrag: true,
       builder: (BuildContext context) {
-        // ✅ BuildContext explicite
         return TaskModal(task: task);
       },
     );
@@ -105,7 +106,7 @@ class _TaskListScreenState extends State<TaskListScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.getBackground(context), // ✅ CORRIGÉ
       body: Consumer<TaskProvider>(
         builder: (context, taskProvider, child) {
           if (taskProvider.isLoading) {
@@ -159,11 +160,7 @@ class _TaskListScreenState extends State<TaskListScreen>
       elevation: 0,
       flexibleSpace: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColors.primary, AppColors.secondary],
-          ),
+          gradient: AppColors.primaryGradient, // ✅ CORRIGÉ
         ),
         child: const FlexibleSpaceBar(
           title: Text(
@@ -175,6 +172,23 @@ class _TaskListScreenState extends State<TaskListScreen>
         ),
       ),
       actions: [
+        // ✅ DEBUG : Voir l'état du thème
+        Consumer<ThemeProvider>(
+          builder: (context, themeProvider, child) {
+            print(
+              '🌙 TaskListScreen: Theme brightness: ${Theme.of(context).brightness}',
+            );
+            print(
+              '🌙 TaskListScreen: ThemeProvider mode: ${themeProvider.themeMode}',
+            );
+
+            return const Padding(
+              padding: EdgeInsets.only(right: 8),
+              child: ThemeSwitch(showLabel: false),
+            );
+          },
+        ),
+
         IconButton(
           icon: const Icon(Icons.logout, color: Colors.white),
           onPressed: _showLogoutDialog,
