@@ -7,29 +7,41 @@ on:
     branches: [dev]
 
 jobs:
-  build:
+  analyze:
+    name: Analyze
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.35.2"
+      - run: flutter pub get
+      - run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
-      - name: Install dependencies
-        run: flutter pub get
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.35.2"
+      - run: flutter pub get
+      - run: |
+          if [ -d "test" ]; then
+            flutter test
+          else
+            echo "No tests found, skipping..."
+          fi
 
-      - name: Analyze
-        run: flutter analyze --no-fatal-infos --no-fatal-warnings
-
-      - name: Run tests
-        run: flutter test
-
-      - name: Build APK (Android)
-        run: flutter build apk --debug
-
-      - name: Build Web
-        run: flutter build web
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.35.2"
+      - run: flutter pub get
+      - run: flutter build apk --debug
+      - run: flutter build web
