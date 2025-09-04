@@ -7,7 +7,7 @@ class TaskProvider extends ChangeNotifier {
   // ===== DONNÉES PRIVÉES =====
   final List<Task> _tasks = [];
   TaskFilter _currentFilter = TaskFilter.all;
-  TaskSort _currentSort = TaskSort.newest;
+  TaskSort _currentSort = TaskSort.createdAt;
   bool _isLoading = false;
 
   // ===== GETTERS PUBLICS =====
@@ -116,19 +116,28 @@ class TaskProvider extends ChangeNotifier {
     }
   }
 
-  /// Appliquer le tri actuel
-  List<Task> _applySort(List<Task> tasks) {
+
+List<Task> _applySort(List<Task> tasks) {
+    List<Task> sorted;
     switch (_currentSort) {
       case TaskSort.newest:
-        return tasks..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        sorted = List<Task>.from(tasks)
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        break;
       case TaskSort.oldest:
-        return tasks..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+        sorted = List<Task>.from(tasks)
+          ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+        break;
       case TaskSort.priority:
-        return tasks
+        sorted = List<Task>.from(tasks)
           ..sort((a, b) => b.priority.value.compareTo(a.priority.value));
+        break;
       case TaskSort.alphabetical:
-        return tasks..sort((a, b) => a.title.compareTo(b.title));
+        sorted = List<Task>.from(tasks)
+          ..sort((a, b) => a.title.compareTo(b.title));
+        break;
     }
+    return sorted;
   }
 
   // ===== DONNÉES DE TEST =====
@@ -201,10 +210,8 @@ enum TaskFilter {
 
 /// Options de tri pour les tâches
 enum TaskSort {
-  newest('Plus récentes'),
-  oldest('Plus anciennes'),
-  priority('Par priorité'),
-  alphabetical('Alphabétique');
+  createdAt('Date de création'),
+  dueDate("Date d'échéance");
 
   const TaskSort(this.label);
   final String label;
