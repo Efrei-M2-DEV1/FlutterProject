@@ -72,19 +72,34 @@ Sinon restez en **web-server**.
 
 ```
 lib/
-  app.dart
-  main.dart
-  router/
-  common/        # thème, widgets communs
-  features/
-    splash/      # écran Splash
-    auth/        # login/inscription (à implémenter)
-    tasks/       # liste de tâches
+  app.dart                # Point d'entrée principal de l'app (MaterialApp, Provider, etc.)
+  main.dart               # Bootstrap Flutter (runApp)
+  router/                 # Configuration et gestion des routes (go_router)
+  common/                 # Thème, widgets réutilisables, helpers, extensions
+  features/               # Modules fonctionnels (découpage par domaine)
+    splash/               # Écran d'accueil (SplashScreen)
+    auth/                 # Authentification (login, inscription, gestion utilisateur)
+    tasks/                # Gestion des tâches (listes, CRUD, etc.)
+    ...                   # Ajouter vos autres features ici
+  models/                 # Modèles de données (ex: Task, User)
+  providers/              # Gestion d'état (ex: TaskProvider, AuthProvider)
+  services/               # Accès aux API, Firebase, stockage local, etc.
+  utils/                  # Fonctions utilitaires, constantes, validations
+test/
+  example_test.dart       # Exemple de test unitaire
+  ...                     # Vos autres tests
+assets/
+  images/                 # Images statiques
+  fonts/                  # Polices personnalisées
+  ...
 ```
 
-- Navigation : **go_router**
-- UI de base : Splash → Auth → Tasks
-- Gestion d’état : **Provider** (sera branché sur `TaskProvider`)
+- **Navigation** : `go_router` centralisé dans `router/`
+- **Gestion d’état** : `Provider` dans `providers/`
+- **Découpage par feature** : chaque domaine fonctionnel dans son dossier
+- **Séparation claire** : modèles, services, utilitaires, assets
+
+➡️ Cette organisation facilite la scalabilité, la maintenance et la collaboration sur le
 
 ---
 
