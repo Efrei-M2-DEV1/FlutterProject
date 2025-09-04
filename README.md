@@ -15,7 +15,7 @@ Projet Flutter — base avec navigation (`go_router`) et arborescence organisée
 
 ### ✅ Cloner le projet
 ```bash
-git clone <URL_DU_REPO>
+git clone https://github.com/Efrei-M2-DEV1/FlutterProject.git
 cd flutterproject
 flutter pub get
 flutter doctor
