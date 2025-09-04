@@ -99,7 +99,7 @@ assets/
 - **Découpage par feature** : chaque domaine fonctionnel dans son dossier
 - **Séparation claire** : modèles, services, utilitaires, assets
 
-➡️ Cette organisation facilite la scalabilité, la maintenance et la collaboration sur le
+➡️ Cette organisation facilite la scalabilité, la maintenance et la collaboration.
 
 ---
 
