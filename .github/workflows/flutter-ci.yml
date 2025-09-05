@@ -33,6 +33,12 @@ jobs:
           else
             echo "No tests found, skipping..."
           fi
+      - run: |
+          if [ -d "integration_test" ]; then
+            flutter test integration_test
+          else
+            echo "No integration tests found, skipping..."
+          fi
 
   build:
     name: Build
