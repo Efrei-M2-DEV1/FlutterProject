@@ -6,7 +6,7 @@ import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/tasks/presentation/screens/task_detail_screen.dart';
 import '../../features/tasks/presentation/screens/task_form_screen.dart';
-import '../../features/tasks/presentation/screens/task_list_screen.dart';
+import '../../features/tasks/ui/tasks_page.dart';
 import '../../shared/widgets/splash_screen.dart';
 
 /// Configuration centralisée de la navigation avec go_router
@@ -63,7 +63,7 @@ class AppRouter {
       GoRoute(
         path: tasks,
         name: 'tasks',
-        builder: (context, state) => const TaskListScreen(),
+        builder: (context, state) => const TasksPage(),
       ),
 
       // Création d'une nouvelle tâche
