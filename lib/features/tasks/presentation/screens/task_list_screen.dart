@@ -15,6 +15,7 @@ import '../widgets/task_filter_chips.dart';
 import '../widgets/task_modal.dart';
 import '../widgets/task_stats_card.dart';
 import '../widgets/task_tile.dart';
+import '../widgets/task_sort_button.dart';
 
 /// Écran principal des tâches avec interface moderne
 class TaskListScreen extends StatefulWidget {
@@ -172,6 +173,7 @@ class _TaskListScreenState extends State<TaskListScreen>
         ),
       ),
       actions: [
+        const TaskSortButton(),
         // ✅ DEBUG : Voir l'état du thème
         Consumer<ThemeProvider>(
           builder: (context, themeProvider, child) {

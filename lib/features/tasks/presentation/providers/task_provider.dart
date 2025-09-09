@@ -7,7 +7,7 @@ class TaskProvider extends ChangeNotifier {
   // ===== DONNÉES PRIVÉES =====
   final List<Task> _tasks = [];
   TaskFilter _currentFilter = TaskFilter.all;
-  TaskSort _currentSort = TaskSort.newest;
+  TaskSort _currentSort = TaskSort.createdAt;
   bool _isLoading = false;
 
   // ===== GETTERS PUBLICS =====
@@ -119,15 +119,15 @@ class TaskProvider extends ChangeNotifier {
   /// Appliquer le tri actuel
   List<Task> _applySort(List<Task> tasks) {
     switch (_currentSort) {
-      case TaskSort.newest:
+      case TaskSort.createdAt:
         return tasks..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-      case TaskSort.oldest:
-        return tasks..sort((a, b) => a.createdAt.compareTo(b.createdAt));
-      case TaskSort.priority:
+      case TaskSort.dueDate:
         return tasks
-          ..sort((a, b) => b.priority.value.compareTo(a.priority.value));
-      case TaskSort.alphabetical:
-        return tasks..sort((a, b) => a.title.compareTo(b.title));
+          ..sort((a, b) {
+            final aDate = a.dueDate ?? DateTime(9999);
+            final bDate = b.dueDate ?? DateTime(9999);
+            return aDate.compareTo(bDate);
+          });
     }
   }
 
@@ -201,10 +201,8 @@ enum TaskFilter {
 
 /// Options de tri pour les tâches
 enum TaskSort {
-  newest('Plus récentes'),
-  oldest('Plus anciennes'),
-  priority('Par priorité'),
-  alphabetical('Alphabétique');
+  createdAt('Date de création'),
+  dueDate('Date d\'échéance');
 
   const TaskSort(this.label);
   final String label;
