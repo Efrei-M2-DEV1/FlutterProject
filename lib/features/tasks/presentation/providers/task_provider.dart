@@ -129,6 +129,7 @@ class TaskProvider extends ChangeNotifier {
           final bDate = b.dueDate ?? DateTime(9999);
           return aDate.compareTo(bDate);
         });
+
         break;
     }
     return sorted;

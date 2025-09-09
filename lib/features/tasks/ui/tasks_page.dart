@@ -1,12 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-
-import '../presentation/providers/task_provider.dart';
-
-/// Page affichant la liste des tâches avec possibilité de tri
 class TasksPage extends StatefulWidget {
   const TasksPage({super.key});
+
+    @override
+    State<TasksPage> createState() => _TasksPageState();
+  }
+
+  class _TasksPageState extends State<TasksPage> {
+    @override
+    void initState() {
+      super.initState();
+      // Chargement de données de test
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final provider = context.read<TaskProvider>();
+        if (provider.allTasks.isEmpty) {
+          provider.loadTestData();
+        }
+      });
+    }
+
 
   @override
   State<TasksPage> createState() => _TasksPageState();
