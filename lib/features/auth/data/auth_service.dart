@@ -1,4 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+
+/// Service d'authentification utilisant Firebase Auth + création d'un document
+/// utilisateur dans Cloud Firestore sous la collection `users`.
+///
+/// Remarque: les fichiers natifs `google-services.json` (Android) et
+/// `GoogleService-Info.plist` (iOS) doivent être ajoutés localement.
 
 /// Service d'authentification simple (en attendant Firebase)
 ///
@@ -6,93 +14,143 @@ import 'package:flutter/foundation.dart';
 /// Email: admin@todolist.com
 /// Password: 123456
 class AuthService extends ChangeNotifier {
-  // ===== CREDENTIALS GÉNÉRIQUES =====
-  static const String _validEmail = 'admin@todolist.com';
-  static const String _validPassword = '123456';
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // ===== ÉTAT D'AUTHENTIFICATION =====
-  bool _isLoggedIn = false;
+  User? _user;
   bool _isLoading = false;
-  String? _currentUserEmail;
+
+  AuthService() {
+    // Écoute les changements d'auth et notifie
+    _auth.authStateChanges().listen((u) {
+      _user = u;
+      notifyListeners();
+    });
+  }
 
   // ===== GETTERS =====
-  bool get isLoggedIn => _isLoggedIn;
+  User? get user => _user;
+  bool get isLoggedIn => _user != null;
   bool get isLoading => _isLoading;
-  String? get currentUserEmail => _currentUserEmail;
+  String? get currentUserEmail => _user?.email;
+  String? get userId => _user?.uid;
 
-  /// Connexion avec email/password
+  /// Connexion via Firebase Auth
   Future<AuthResult> login(String email, String password) async {
-    _isLoading = true;
-    notifyListeners();
+    try {
+      _isLoading = true;
+      notifyListeners();
 
-    // Simulation d'une requête réseau
-    await Future.delayed(const Duration(milliseconds: 1500));
+      final credential = await _auth.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
 
-    // Vérification des credentials
-    if (email.trim().toLowerCase() == _validEmail &&
-        password == _validPassword) {
-      _isLoggedIn = true;
-      _currentUserEmail = email;
+      _user = credential.user;
+      debugPrint(
+        'AuthService.login -> uid=${_user?.uid} email=${_user?.email}',
+      );
       _isLoading = false;
       notifyListeners();
       return AuthResult.success();
-    } else {
+    } on FirebaseAuthException catch (e) {
       _isLoading = false;
       notifyListeners();
-      return AuthResult.error('Email ou mot de passe incorrect');
+      return AuthResult.error(e.message ?? 'Erreur d\'authentification');
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      return AuthResult.error(e.toString());
     }
   }
 
-  /// Inscription (simulation)
+  /// Inscription avec création d'un document user en Firestore
   Future<AuthResult> register(
     String email,
     String password,
     String name,
   ) async {
-    _isLoading = true;
-    notifyListeners();
+    try {
+      _isLoading = true;
+      notifyListeners();
 
-    await Future.delayed(const Duration(milliseconds: 1500));
+      final credential = await _auth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
 
-    // Pour la démo, on accepte n'importe quel email/password
-    _isLoggedIn = true;
-    _currentUserEmail = email;
-    _isLoading = false;
-    notifyListeners();
-    return AuthResult.success();
+      _user = credential.user;
+
+      // Créer/mettre à jour le document utilisateur
+      debugPrint(
+        'AuthService.register -> uid=${_user?.uid} email=${_user?.email}',
+      );
+      if (_user != null) {
+        try {
+          await _firestore.collection('users').doc(_user!.uid).set({
+            'email': _user!.email,
+            'name': name,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+        } on FirebaseException catch (e) {
+          debugPrint(
+            'AuthService.register firestore error: ${e.code} ${e.message}',
+          );
+          _isLoading = false;
+          notifyListeners();
+          return AuthResult.error('Erreur Firestore: ${e.message} (${e.code})');
+        }
+      }
+
+      _isLoading = false;
+      notifyListeners();
+      return AuthResult.success();
+    } on FirebaseAuthException catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      return AuthResult.error(e.message ?? 'Erreur lors de l\'inscription');
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      return AuthResult.error(e.toString());
+    }
   }
 
   /// Déconnexion
   Future<void> logout() async {
-    _isLoggedIn = false;
-    _currentUserEmail = null;
+    await _auth.signOut();
+    _user = null;
     notifyListeners();
   }
 
   /// Réinitialisation du mot de passe
   Future<AuthResult> resetPassword(String email) async {
-    _isLoading = true;
-    notifyListeners();
+    try {
+      _isLoading = true;
+      notifyListeners();
 
-    // Simulation d'une requête réseau
-    await Future.delayed(const Duration(milliseconds: 1500));
+      await _auth.sendPasswordResetEmail(email: email.trim());
 
-    // Validation basique de l'email
-    if (email.trim().isEmpty || !email.contains('@')) {
       _isLoading = false;
       notifyListeners();
-      return AuthResult.error('Email invalide');
+      return AuthResult.success();
+    } on FirebaseAuthException catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      return AuthResult.error(
+        e.message ?? 'Erreur lors de la réinitialisation',
+      );
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      return AuthResult.error(e.toString());
     }
-
-    _isLoading = false;
-    notifyListeners();
-    return AuthResult.success();
   }
 
-  /// Vérifier si l'utilisateur est connecté au démarrage
+  /// Optionnel: vérification d'état au démarrage (déjà couvert par authStateChanges)
   Future<void> checkAuthStatus() async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    // Pour la démo, on considère que l'utilisateur n'est pas connecté
+    _user = _auth.currentUser;
+    notifyListeners();
   }
 }
 

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 import 'app.dart';
 
@@ -34,7 +36,10 @@ void main() async {
   ]);
 
   // TODO: Le Lead Auth initialisera Firebase ici
-  // await Firebase.initializeApp();
+  // Initialisation de Firebase avec options multi-plateformes
+  // Sur web, FirebaseOptions est nécessaire. Nous utilisons le fichier
+  // `lib/firebase_options.dart` (généré ou rempli manuellement).
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // ===== LANCEMENT DE L'APPLICATION =====
   runApp(const TodoApp());

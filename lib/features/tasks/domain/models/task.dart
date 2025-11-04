@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
 
 /// Modèle d'une tâche
 @immutable
@@ -63,6 +64,75 @@ class Task {
   String toString() {
     return 'Task(id: $id, title: $title, isCompleted: $isCompleted, priority: $priority)';
   }
+
+  /// Sérialisation pour Firestore
+  Map<String, dynamic> toMap() {
+    final map = <String, dynamic>{
+      'title': title,
+      'description': description,
+      'isCompleted': isCompleted,
+      'priority': priority.value,
+      'tags': tags,
+    };
+
+    // createdAt and dueDate: include if present. Firestore accepts DateTime.
+    map['createdAt'] = createdAt;
+    if (dueDate != null) map['dueDate'] = dueDate;
+
+    return map;
+  }
+
+  /// Désérialisation depuis Firestore / Map
+  factory Task.fromMap(Map<String, dynamic> map, {required String id}) {
+    DateTime parseDate(dynamic v) {
+      if (v == null) return DateTime.now();
+      try {
+        if (v is DateTime) return v;
+        if (v is int) return DateTime.fromMillisecondsSinceEpoch(v);
+        if (v is String) return DateTime.parse(v);
+        if (v is Timestamp) return v.toDate();
+        if (v is Map && v['seconds'] != null) {
+          // Map representation from some platforms
+          final seconds = v['seconds'];
+          return DateTime.fromMillisecondsSinceEpoch(
+            (seconds is int)
+                ? seconds * 1000
+                : (int.parse(seconds.toString()) * 1000),
+          );
+        }
+      } catch (_) {}
+      return DateTime.now();
+    }
+
+    final createdAt = map.containsKey('createdAt')
+        ? parseDate(map['createdAt'])
+        : DateTime.now();
+    final dueDate = map.containsKey('dueDate') && map['dueDate'] != null
+        ? parseDate(map['dueDate'])
+        : null;
+
+    final priorityValue = map['priority'] is int
+        ? map['priority'] as int
+        : int.tryParse(map['priority']?.toString() ?? '') ??
+              TaskPriority.medium.value;
+
+    final tagsRaw = map['tags'];
+    List<String> tags = [];
+    if (tagsRaw is List) {
+      tags = tagsRaw.map((e) => e.toString()).toList();
+    }
+
+    return Task(
+      id: id,
+      title: map['title']?.toString() ?? '',
+      description: map['description']?.toString() ?? '',
+      isCompleted: map['isCompleted'] == true,
+      priority: TaskPriority.fromValue(priorityValue),
+      createdAt: createdAt,
+      dueDate: dueDate,
+      tags: tags,
+    );
+  }
 }
 
 /// Niveaux de priorité des tâches
@@ -75,4 +145,11 @@ enum TaskPriority {
 
   final String label;
   final int value;
+
+  static TaskPriority fromValue(int v) {
+    return TaskPriority.values.firstWhere(
+      (e) => e.value == v,
+      orElse: () => TaskPriority.medium,
+    );
+  }
 }

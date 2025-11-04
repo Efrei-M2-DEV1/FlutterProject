@@ -6,6 +6,7 @@ import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
 import 'features/auth/data/auth_service.dart';
 import 'features/tasks/presentation/providers/task_provider.dart';
+import 'features/tasks/data/task_service.dart';
 
 /// Widget racine de l'application avec support du thème dark/light
 class TodoApp extends StatelessWidget {
@@ -21,8 +22,18 @@ class TodoApp extends StatelessWidget {
         // Service d'authentification
         ChangeNotifierProvider<AuthService>(create: (_) => AuthService()),
 
-        // Provider des tâches
-        ChangeNotifierProvider<TaskProvider>(create: (_) => TaskProvider()),
+        // Service Firestore pour les tâches
+        Provider<TaskService>(create: (_) => TaskService()),
+
+        // Provider des tâches (dépendant du TaskService)
+        ChangeNotifierProxyProvider<TaskService, TaskProvider>(
+          create: (_) => TaskProvider(),
+          update: (_, taskService, taskProvider) {
+            final provider = taskProvider ?? TaskProvider();
+            provider.setTaskService(taskService);
+            return provider;
+          },
+        ),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {

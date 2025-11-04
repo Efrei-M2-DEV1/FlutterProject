@@ -86,6 +86,7 @@ class _EmptyStateState extends State<EmptyState> with TickerProviderStateMixin {
                 child: Padding(
                   padding: AppTheme.paddingLarge,
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       // Illustration animée
@@ -148,6 +149,7 @@ class _EmptyStateState extends State<EmptyState> with TickerProviderStateMixin {
 
   Widget _buildContent(bool hasNoTasks, TaskFilter currentFilter) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           _getTitle(hasNoTasks, currentFilter),
@@ -183,6 +185,7 @@ class _EmptyStateState extends State<EmptyState> with TickerProviderStateMixin {
     if (hasNoTasks) {
       // Première tâche
       return Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           CustomButton(
             onPressed: _showTaskModal,
@@ -208,6 +211,7 @@ class _EmptyStateState extends State<EmptyState> with TickerProviderStateMixin {
     } else {
       // Filtres sans résultats
       return Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           CustomButton(
             onPressed: () =>

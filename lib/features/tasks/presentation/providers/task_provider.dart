@@ -1,19 +1,26 @@
+verifie import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../../domain/models/task.dart';
+import '../../data/task_service.dart';
 
 /// Provider pour gérer l'état des tâches
 class TaskProvider extends ChangeNotifier {
   // ===== DONNÉES PRIVÉES =====
   final List<Task> _tasks = [];
+  late TaskService _taskService;
+  StreamSubscription<List<Task>>? _tasksSub;
   TaskFilter _currentFilter = TaskFilter.all;
   TaskSort _currentSort = TaskSort.createdAt;
   bool _isLoading = false;
+  String? _errorMessage;
 
   // ===== GETTERS PUBLICS =====
 
   /// Liste de toutes les tâches
   List<Task> get allTasks => List.unmodifiable(_tasks);
+  String? get errorMessage => _errorMessage;
 
   /// Liste des tâches filtrées et triées
   List<Task> get filteredTasks {
@@ -50,35 +57,65 @@ class TaskProvider extends ChangeNotifier {
     );
   }
 
+  /// Permet d'injecter le service et d'écouter le stream
+  void setTaskService(TaskService service) {
+    _taskService = service;
+    _tasksSub?.cancel();
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    _tasksSub = _taskService.tasksStream().listen(
+      (list) {
+        _tasks
+          ..clear()
+          ..addAll(list);
+        _isLoading = false;
+        notifyListeners();
+      },
+      onError: (e, st) {
+        // Firestore can emit errors (for example when a required index is missing).
+        _errorMessage = e?.toString() ?? 'Erreur inconnue sur Firestore';
+        _isLoading = false;
+        notifyListeners();
+        if (kDebugMode) {
+          debugPrint('Firestore listen error: $_errorMessage');
+          debugPrintStack(stackTrace: st);
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _tasksSub?.cancel();
+    super.dispose();
+  }
+
   // ===== ACTIONS CRUD =====
 
   /// Ajouter une nouvelle tâche
-  void addTask(Task task) {
-    _tasks.add(task);
-    notifyListeners();
+  Future<void> addTask(Task task) async {
+    await _taskService.addTask(task);
+    // la mise à jour arrive via le stream
   }
 
   /// Modifier une tâche existante
-  void updateTask(Task updatedTask) {
-    final index = _tasks.indexWhere((task) => task.id == updatedTask.id);
-    if (index != -1) {
-      _tasks[index] = updatedTask;
-      notifyListeners();
-    }
+  Future<void> updateTask(Task updatedTask) async {
+    await _taskService.updateTask(updatedTask);
   }
 
   /// Supprimer une tâche
-  void deleteTask(String taskId) {
-    _tasks.removeWhere((task) => task.id == taskId);
-    notifyListeners();
+  Future<void> deleteTask(String taskId) async {
+    await _taskService.deleteTask(taskId);
   }
 
   /// Basculer l'état de completion d'une tâche
-  void toggleTaskCompletion(String taskId) {
+  Future<void> toggleTaskCompletion(String taskId) async {
     final index = _tasks.indexWhere((task) => task.id == taskId);
     if (index != -1) {
-      _tasks[index] = _tasks[index].toggleCompleted();
-      notifyListeners();
+      final newState = !_tasks[index].isCompleted;
+      await _taskService.toggleCompleted(taskId, newState);
     }
   }
 
