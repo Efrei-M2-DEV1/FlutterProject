@@ -173,6 +173,37 @@ class _TaskListScreenState extends State<TaskListScreen>
         ),
       ),
       actions: [
+        // Affichage de l'utilisateur connecté
+        Consumer<AuthService>(
+          builder: (context, authService, child) {
+            final email = authService.currentUserEmail;
+            if (email != null) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.person,
+                      size: 18,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      email,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          },
+        ),
         const TaskSortButton(),
         // ✅ DEBUG : Voir l'état du thème
         Consumer<ThemeProvider>(
