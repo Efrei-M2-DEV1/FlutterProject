@@ -41,20 +41,20 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'YOUR_WEB_API_KEY',
-    appId: 'YOUR_WEB_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    authDomain: 'YOUR_PROJECT_ID.firebaseapp.com',
-    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+    apiKey: 'AIzaSyCVcVqNC5LwAV8Xn8BruKvvEyLqlI8Gni8',
+    appId: '1:38102823585:web:6ea386178d7f409e9df6e0',
+    messagingSenderId: '38102823585',
+    projectId: 'flutter-todo-web-305fb',
+    authDomain: 'flutter-todo-web-305fb.firebaseapp.com',
+    storageBucket: 'flutter-todo-web-305fb.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'YOUR_ANDROID_API_KEY',
-    appId: 'YOUR_ANDROID_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+    apiKey: 'AIzaSyCVcVqNC5LwAV8Xn8BruKvvEyLqlI8Gni8',
+    appId: '1:38102823585:android:YOUR_ANDROID_APP_ID',
+    messagingSenderId: '38102823585',
+    projectId: 'flutter-todo-web-305fb',
+    storageBucket: 'flutter-todo-web-305fb.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -76,11 +76,11 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'YOUR_WEB_API_KEY',
-    appId: 'YOUR_WINDOWS_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    authDomain: 'YOUR_PROJECT_ID.firebaseapp.com',
-    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+    apiKey: 'AIzaSyCVcVqNC5LwAV8Xn8BruKvvEyLqlI8Gni8',
+    appId: '1:38102823585:web:6ea386178d7f409e9df6e0',
+    messagingSenderId: '38102823585',
+    projectId: 'flutter-todo-web-305fb',
+    authDomain: 'flutter-todo-web-305fb.firebaseapp.com',
+    storageBucket: 'flutter-todo-web-305fb.firebasestorage.app',
   );
 }
