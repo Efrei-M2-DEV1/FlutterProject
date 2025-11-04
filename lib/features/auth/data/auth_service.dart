@@ -128,26 +128,6 @@ class AuthService extends ChangeNotifier {
     }
   }
 
-  /// Réinitialisation du mot de passe
-  Future<AuthResult> resetPassword(String email) async {
-    _isLoading = true;
-    notifyListeners();
-
-    // Simulation d'une requête réseau
-    await Future.delayed(const Duration(milliseconds: 1500));
-
-    // Validation basique de l'email
-    if (email.trim().isEmpty || !email.contains('@')) {
-      _isLoading = false;
-      notifyListeners();
-      return AuthResult.error('Email invalide');
-    }
-
-    _isLoading = false;
-    notifyListeners();
-    return AuthResult.success();
-  }
-
   /// Vérifier si l'utilisateur est connecté au démarrage
   Future<void> checkAuthStatus() async {
     // Firebase Auth maintient automatiquement l'état de connexion
