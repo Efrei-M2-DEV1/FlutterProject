@@ -1,14 +1,53 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
+import '../../data/task_repository.dart';
 import '../../domain/models/task.dart';
 
-/// Provider pour gérer l'état des tâches
+/// Provider pour gérer l'état des tâches avec Firebase Firestore
 class TaskProvider extends ChangeNotifier {
   // ===== DONNÉES PRIVÉES =====
-  final List<Task> _tasks = [];
+  final TaskRepository _repository;
+  List<Task> _tasks = [];
   TaskFilter _currentFilter = TaskFilter.all;
   TaskSort _currentSort = TaskSort.createdAt;
   bool _isLoading = false;
+  String? _errorMessage;
+  StreamSubscription<List<Task>>? _tasksSubscription;
+
+  /// Constructeur avec injection du repository
+  TaskProvider({TaskRepository? repository})
+      : _repository = repository ?? TaskRepository() {
+    _initializeTasks();
+  }
+
+  /// Initialiser et écouter les tâches en temps réel
+  void _initializeTasks() {
+    _isLoading = true;
+    notifyListeners();
+
+    // Écouter les changements en temps réel depuis Firestore
+    _tasksSubscription = _repository.watchAllTasks().listen(
+      (tasks) {
+        _tasks = tasks;
+        _isLoading = false;
+        _errorMessage = null;
+        notifyListeners();
+      },
+      onError: (error) {
+        _errorMessage = 'Erreur de chargement: $error';
+        _isLoading = false;
+        notifyListeners();
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _tasksSubscription?.cancel();
+    super.dispose();
+  }
 
   // ===== GETTERS PUBLICS =====
 
@@ -30,6 +69,9 @@ class TaskProvider extends ChangeNotifier {
 
   /// État de chargement
   bool get isLoading => _isLoading;
+
+  /// Message d'erreur (si existant)
+  String? get errorMessage => _errorMessage;
 
   /// Statistiques
   TaskStats get stats {
@@ -53,32 +95,92 @@ class TaskProvider extends ChangeNotifier {
   // ===== ACTIONS CRUD =====
 
   /// Ajouter une nouvelle tâche
-  void addTask(Task task) {
-    _tasks.add(task);
-    notifyListeners();
+  Future<void> addTask(Task task) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      await _repository.createTask(task);
+      
+      _isLoading = false;
+      _errorMessage = null;
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'Erreur lors de l\'ajout: $e';
+      _isLoading = false;
+      notifyListeners();
+      rethrow;
+    }
   }
 
   /// Modifier une tâche existante
-  void updateTask(Task updatedTask) {
-    final index = _tasks.indexWhere((task) => task.id == updatedTask.id);
-    if (index != -1) {
-      _tasks[index] = updatedTask;
+  Future<void> updateTask(Task updatedTask) async {
+    try {
+      _isLoading = true;
       notifyListeners();
+
+      await _repository.updateTask(updatedTask);
+      
+      _isLoading = false;
+      _errorMessage = null;
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'Erreur lors de la mise à jour: $e';
+      _isLoading = false;
+      notifyListeners();
+      rethrow;
     }
   }
 
   /// Supprimer une tâche
-  void deleteTask(String taskId) {
-    _tasks.removeWhere((task) => task.id == taskId);
-    notifyListeners();
+  Future<void> deleteTask(String taskId) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      await _repository.deleteTask(taskId);
+      
+      _isLoading = false;
+      _errorMessage = null;
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'Erreur lors de la suppression: $e';
+      _isLoading = false;
+      notifyListeners();
+      rethrow;
+    }
   }
 
   /// Basculer l'état de completion d'une tâche
-  void toggleTaskCompletion(String taskId) {
-    final index = _tasks.indexWhere((task) => task.id == taskId);
-    if (index != -1) {
-      _tasks[index] = _tasks[index].toggleCompleted();
+  Future<void> toggleTaskCompletion(String taskId) async {
+    try {
+      await _repository.toggleTaskCompletion(taskId);
+      _errorMessage = null;
+    } catch (e) {
+      _errorMessage = 'Erreur lors du basculement: $e';
       notifyListeners();
+      rethrow;
+    }
+  }
+
+  /// Supprimer toutes les tâches complétées
+  Future<int> deleteCompletedTasks() async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      final count = await _repository.deleteCompletedTasks();
+      
+      _isLoading = false;
+      _errorMessage = null;
+      notifyListeners();
+      
+      return count;
+    } catch (e) {
+      _errorMessage = 'Erreur lors de la suppression: $e';
+      _isLoading = false;
+      notifyListeners();
+      rethrow;
     }
   }
 
@@ -133,16 +235,16 @@ class TaskProvider extends ChangeNotifier {
 
   // ===== DONNÉES DE TEST =====
 
-  /// Charger des données de test
-  void loadTestData() {
+  /// Charger des données de test dans Firestore
+  Future<void> loadTestData() async {
     _isLoading = true;
     notifyListeners();
 
-    Future.delayed(const Duration(seconds: 1), () {
-      _tasks.clear();
-      _tasks.addAll([
+    try {
+      // Créer des tâches de test
+      final testTasks = [
         Task(
-          id: '1',
+          id: '',
           title: 'Apprendre Flutter',
           description: 'Terminer le projet To-Do List avec une belle interface',
           priority: TaskPriority.high,
@@ -150,7 +252,7 @@ class TaskProvider extends ChangeNotifier {
           dueDate: DateTime.now().add(const Duration(days: 3)),
         ),
         Task(
-          id: '2',
+          id: '',
           title: 'Faire les courses',
           description: 'Acheter du pain, du lait et des légumes',
           priority: TaskPriority.medium,
@@ -158,7 +260,7 @@ class TaskProvider extends ChangeNotifier {
           isCompleted: true,
         ),
         Task(
-          id: '3',
+          id: '',
           title: 'Rendez-vous médecin',
           description: 'Consultation de contrôle à 14h',
           priority: TaskPriority.high,
@@ -166,25 +268,54 @@ class TaskProvider extends ChangeNotifier {
           dueDate: DateTime.now().add(const Duration(days: 1)),
         ),
         Task(
-          id: '4',
+          id: '',
           title: 'Lire un livre',
           description: 'Continuer la lecture de "Clean Code"',
           priority: TaskPriority.low,
           createdAt: DateTime.now().subtract(const Duration(hours: 3)),
         ),
         Task(
-          id: '5',
+          id: '',
           title: 'Projet Flutter terminé',
           description: 'Application Todo List complètement fonctionnelle !',
           priority: TaskPriority.high,
           createdAt: DateTime.now().subtract(const Duration(minutes: 30)),
           isCompleted: true,
         ),
-      ]);
+      ];
+
+      // Ajouter chaque tâche à Firestore
+      for (final task in testTasks) {
+        await _repository.createTask(task);
+      }
 
       _isLoading = false;
+      _errorMessage = null;
       notifyListeners();
-    });
+    } catch (e) {
+      _errorMessage = 'Erreur lors du chargement des données: $e';
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Rafraîchir manuellement les tâches
+  Future<void> refreshTasks() async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      final tasks = await _repository.getAllTasks();
+      _tasks = tasks;
+      
+      _isLoading = false;
+      _errorMessage = null;
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'Erreur lors du rafraîchissement: $e';
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }
 
