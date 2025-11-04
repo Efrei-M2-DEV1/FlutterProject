@@ -14,14 +14,8 @@ class TaskService {
 
   /// Retourne un stream des tâches du user courant
   Stream<List<Task>> tasksStream() {
-    final uid = _auth.currentUser?.uid;
-    if (uid == null) {
-      // Utilisateur non connecté -> stream vide
-      return const Stream<List<Task>>.empty();
-    }
-
-    // Use a per-user subcollection to avoid requiring composite indexes
-    final col = _firestore.collection('users').doc(uid).collection('tasks');
+    // Return a global tasks stream (includes owner fields) so the UI can list all tasks
+    final col = _firestore.collection('tasks');
     return col
         .orderBy('createdAt', descending: true)
         .snapshots()
@@ -35,10 +29,26 @@ class TaskService {
     final uid = _auth.currentUser?.uid;
     if (uid == null) throw Exception('Utilisateur non authentifié');
     try {
+      // Ensure owner fields are included. Try to get displayName from auth or users collection
+      String ownerName = _auth.currentUser?.displayName ?? '';
+      if (ownerName.isEmpty) {
+        try {
+          final userDoc = await _firestore.collection('users').doc(uid).get();
+          ownerName =
+              userDoc.data()?['name'] ?? userDoc.data()?['displayName'] ?? '';
+        } catch (_) {
+          // ignore errors reading user doc; ownerName can stay empty
+        }
+      }
+
       final data = task.toMap();
       // createdAt will be set server-side for consistency
       data.remove('createdAt');
-      await _firestore.collection('users').doc(uid).collection('tasks').add({
+      // Override owner fields to be safe
+      data['userId'] = uid;
+      data['ownerName'] = ownerName;
+
+      await _firestore.collection('tasks').add({
         ...data,
         'createdAt': FieldValue.serverTimestamp(),
       });
@@ -53,13 +63,11 @@ class TaskService {
     if (uid == null) throw Exception('Utilisateur non authentifié');
     try {
       final data = task.toMap();
+      // Prevent owner fields from being changed by client
       data.remove('createdAt');
-      await _firestore
-          .collection('users')
-          .doc(uid)
-          .collection('tasks')
-          .doc(task.id)
-          .update(data);
+      data.remove('userId');
+      data.remove('ownerName');
+      await _firestore.collection('tasks').doc(task.id).update(data);
     } on FirebaseException catch (e) {
       throw Exception('Firestore updateTask failed: ${e.code} ${e.message}');
     }
@@ -69,12 +77,7 @@ class TaskService {
     final uid = _auth.currentUser?.uid;
     if (uid == null) throw Exception('Utilisateur non authentifié');
     try {
-      await _firestore
-          .collection('users')
-          .doc(uid)
-          .collection('tasks')
-          .doc(taskId)
-          .delete();
+      await _firestore.collection('tasks').doc(taskId).delete();
     } on FirebaseException catch (e) {
       throw Exception('Firestore deleteTask failed: ${e.code} ${e.message}');
     }
@@ -84,12 +87,9 @@ class TaskService {
     final uid = _auth.currentUser?.uid;
     if (uid == null) throw Exception('Utilisateur non authentifié');
     try {
-      await _firestore
-          .collection('users')
-          .doc(uid)
-          .collection('tasks')
-          .doc(taskId)
-          .update({'isCompleted': completed});
+      await _firestore.collection('tasks').doc(taskId).update({
+        'isCompleted': completed,
+      });
     } on FirebaseException catch (e) {
       throw Exception(
         'Firestore toggleCompleted failed: ${e.code} ${e.message}',

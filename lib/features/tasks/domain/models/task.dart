@@ -7,6 +7,8 @@ class Task {
   final String id;
   final String title;
   final String description;
+  final String ownerId;
+  final String ownerName;
   final bool isCompleted;
   final TaskPriority priority;
   final DateTime createdAt;
@@ -16,6 +18,8 @@ class Task {
   const Task({
     required this.id,
     required this.title,
+    this.ownerId = '',
+    this.ownerName = '',
     this.description = '',
     this.isCompleted = false,
     this.priority = TaskPriority.medium,
@@ -28,6 +32,8 @@ class Task {
   Task copyWith({
     String? id,
     String? title,
+    String? ownerId,
+    String? ownerName,
     String? description,
     bool? isCompleted,
     TaskPriority? priority,
@@ -38,6 +44,8 @@ class Task {
     return Task(
       id: id ?? this.id,
       title: title ?? this.title,
+      ownerId: ownerId ?? this.ownerId,
+      ownerName: ownerName ?? this.ownerName,
       description: description ?? this.description,
       isCompleted: isCompleted ?? this.isCompleted,
       priority: priority ?? this.priority,
@@ -74,6 +82,10 @@ class Task {
       'priority': priority.value,
       'tags': tags,
     };
+
+    // Owner info
+    map['userId'] = ownerId;
+    map['ownerName'] = ownerName;
 
     // createdAt and dueDate: include if present. Firestore accepts DateTime.
     map['createdAt'] = createdAt;
@@ -122,10 +134,15 @@ class Task {
       tags = tagsRaw.map((e) => e.toString()).toList();
     }
 
+    final ownerId = map['userId']?.toString() ?? '';
+    final ownerName = map['ownerName']?.toString() ?? '';
+
     return Task(
       id: id,
       title: map['title']?.toString() ?? '',
       description: map['description']?.toString() ?? '',
+      ownerId: ownerId,
+      ownerName: ownerName,
       isCompleted: map['isCompleted'] == true,
       priority: TaskPriority.fromValue(priorityValue),
       createdAt: createdAt,
