@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -6,6 +7,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
+import '../../data/auth_service.dart';
 
 /// Écran de connexion moderne et élégant
 ///
@@ -74,16 +76,97 @@ class _LoginScreenState extends State<LoginScreen>
 
     setState(() => _isLoading = true);
 
-    // Simulation d'une requête réseau
-    await Future.delayed(const Duration(seconds: 1));
+    // Utiliser le service d'authentification
+    final authService = context.read<AuthService>();
+    final result = await authService.login(
+      _emailController.text.trim(),
+      _passwordController.text,
+    );
 
     if (!mounted) return;
 
-    // TODO: Le Lead Auth remplacera par la vraie logique
     setState(() => _isLoading = false);
 
-    // Navigation vers les tâches
-    context.goToTasks();
+    if (result.success) {
+      // Navigation vers les tâches
+      context.goToTasks();
+    } else {
+      // Afficher un message d'erreur
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.errorMessage ?? 'Erreur lors de la connexion'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  /// Fonction pour gérer le mot de passe oublié
+  Future<void> _handleForgotPassword() async {
+    final emailController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    final emailToReset = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Réinitialiser le mot de passe'),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.',
+              ),
+              const SizedBox(height: 16),
+              CustomTextField(
+                controller: emailController,
+                label: 'Email',
+                hint: 'votre.email@exemple.com',
+                keyboardType: TextInputType.emailAddress,
+                prefixIcon: Icons.email_outlined,
+                validator: _validateEmail,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (formKey.currentState!.validate()) {
+                Navigator.of(context).pop(emailController.text);
+              }
+            },
+            child: const Text('Envoyer'),
+          ),
+        ],
+      ),
+    );
+
+    if (emailToReset != null && mounted) {
+      // Simuler l'envoi de l'email
+      setState(() => _isLoading = true);
+      
+      await Future.delayed(const Duration(seconds: 1));
+      
+      if (!mounted) return;
+      
+      setState(() => _isLoading = false);
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Un email de réinitialisation a été envoyé à $emailToReset',
+          ),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    }
   }
 
   @override
@@ -257,19 +340,6 @@ class _LoginScreenState extends State<LoginScreen>
               isLoading: _isLoading,
               child: const Text('Se connecter'),
             ),
-
-            const SizedBox(height: 16),
-
-            // Lien d'inscription
-            TextButton(
-              onPressed: () {
-                // Navigation vers inscription si nécessaire
-              },
-              child: Text(
-                'Pas encore de compte ? S\'inscrire',
-                style: AppTextStyles.bodyMedium(context),
-              ),
-            ),
           ],
         ),
       ),
@@ -291,12 +361,7 @@ class _LoginScreenState extends State<LoginScreen>
 
         // Lien mot de passe oublié
         TextButton(
-          onPressed: () {
-            // TODO: Implémenter la récupération de mot de passe
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Fonctionnalité à venir')),
-            );
-          },
+          onPressed: _handleForgotPassword,
           child: const Text(
             'Mot de passe oublié ?',
             style: TextStyle(color: Colors.white70),
