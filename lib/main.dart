@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'app.dart';
+import 'firebase_options.dart';
 
 /// Point d'entrée principal de l'application
 ///
@@ -15,7 +16,9 @@ void main() async {
 
   // ===== INITIALISATION FIREBASE =====
   try {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
     debugPrint('✅ Firebase initialisé avec succès');
   } catch (e) {
     debugPrint('❌ Erreur d\'initialisation Firebase: $e');
