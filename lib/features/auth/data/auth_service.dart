@@ -1,98 +1,175 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
-/// Service d'authentification simple (en attendant Firebase)
+/// Service d'authentification avec Firebase Auth
 ///
-/// Credentials génériques pour tester l'app :
-/// Email: admin@todolist.com
-/// Password: 123456
+/// Gère la connexion, l'inscription et la déconnexion des utilisateurs
 class AuthService extends ChangeNotifier {
-  // ===== CREDENTIALS GÉNÉRIQUES =====
-  static const String _validEmail = 'admin@todolist.com';
-  static const String _validPassword = '123456';
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // ===== ÉTAT D'AUTHENTIFICATION =====
-  bool _isLoggedIn = false;
   bool _isLoading = false;
-  String? _currentUserEmail;
+  String? _errorMessage;
 
   // ===== GETTERS =====
-  bool get isLoggedIn => _isLoggedIn;
+  bool get isLoggedIn => _auth.currentUser != null;
   bool get isLoading => _isLoading;
-  String? get currentUserEmail => _currentUserEmail;
+  String? get currentUserEmail => _auth.currentUser?.email;
+  User? get currentUser => _auth.currentUser;
+  String? get errorMessage => _errorMessage;
 
-  /// Connexion avec email/password
+  /// Connexion avec email/password Firebase
   Future<AuthResult> login(String email, String password) async {
-    _isLoading = true;
-    notifyListeners();
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
 
-    // Simulation d'une requête réseau
-    await Future.delayed(const Duration(milliseconds: 1500));
+      await _auth.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
 
-    // Vérification des credentials
-    if (email.trim().toLowerCase() == _validEmail &&
-        password == _validPassword) {
-      _isLoggedIn = true;
-      _currentUserEmail = email;
       _isLoading = false;
       notifyListeners();
       return AuthResult.success();
-    } else {
+    } on FirebaseAuthException catch (e) {
       _isLoading = false;
+      String errorMsg;
+      
+      switch (e.code) {
+        case 'user-not-found':
+          errorMsg = 'Aucun utilisateur trouvé avec cet email';
+          break;
+        case 'wrong-password':
+          errorMsg = 'Mot de passe incorrect';
+          break;
+        case 'invalid-email':
+          errorMsg = 'Email invalide';
+          break;
+        case 'user-disabled':
+          errorMsg = 'Ce compte a été désactivé';
+          break;
+        default:
+          errorMsg = 'Erreur de connexion: ${e.message}';
+      }
+      
+      _errorMessage = errorMsg;
       notifyListeners();
-      return AuthResult.error('Email ou mot de passe incorrect');
+      return AuthResult.error(errorMsg);
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = 'Erreur inattendue: $e';
+      notifyListeners();
+      return AuthResult.error(_errorMessage!);
     }
   }
 
-  /// Inscription (simulation)
+  /// Inscription avec Firebase
   Future<AuthResult> register(
     String email,
     String password,
     String name,
   ) async {
-    _isLoading = true;
-    notifyListeners();
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
 
-    await Future.delayed(const Duration(milliseconds: 1500));
+      final userCredential = await _auth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
 
-    // Pour la démo, on accepte n'importe quel email/password
-    _isLoggedIn = true;
-    _currentUserEmail = email;
-    _isLoading = false;
-    notifyListeners();
-    return AuthResult.success();
-  }
+      // Mettre à jour le nom d'affichage
+      await userCredential.user?.updateDisplayName(name);
+      await userCredential.user?.reload();
 
-  /// Déconnexion
-  Future<void> logout() async {
-    _isLoggedIn = false;
-    _currentUserEmail = null;
-    notifyListeners();
-  }
-
-  /// Réinitialisation du mot de passe
-  Future<AuthResult> resetPassword(String email) async {
-    _isLoading = true;
-    notifyListeners();
-
-    // Simulation d'une requête réseau
-    await Future.delayed(const Duration(milliseconds: 1500));
-
-    // Validation basique de l'email
-    if (email.trim().isEmpty || !email.contains('@')) {
       _isLoading = false;
       notifyListeners();
-      return AuthResult.error('Email invalide');
+      return AuthResult.success();
+    } on FirebaseAuthException catch (e) {
+      _isLoading = false;
+      String errorMsg;
+      
+      switch (e.code) {
+        case 'weak-password':
+          errorMsg = 'Le mot de passe est trop faible (min 6 caractères)';
+          break;
+        case 'email-already-in-use':
+          errorMsg = 'Un compte existe déjà avec cet email';
+          break;
+        case 'invalid-email':
+          errorMsg = 'Email invalide';
+          break;
+        default:
+          errorMsg = 'Erreur d\'inscription: ${e.message}';
+      }
+      
+      _errorMessage = errorMsg;
+      notifyListeners();
+      return AuthResult.error(errorMsg);
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = 'Erreur inattendue: $e';
+      notifyListeners();
+      return AuthResult.error(_errorMessage!);
     }
+  }
 
-    _isLoading = false;
-    notifyListeners();
-    return AuthResult.success();
+  /// Déconnexion Firebase
+  Future<void> logout() async {
+    try {
+      await _auth.signOut();
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'Erreur lors de la déconnexion: $e';
+      notifyListeners();
+    }
   }
 
   /// Vérifier si l'utilisateur est connecté au démarrage
   Future<void> checkAuthStatus() async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    // Pour la démo, on considère que l'utilisateur n'est pas connecté
+    // Firebase Auth maintient automatiquement l'état de connexion
+    notifyListeners();
+  }
+
+  /// Réinitialiser le mot de passe
+  Future<AuthResult> resetPassword(String email) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      await _auth.sendPasswordResetEmail(email: email.trim());
+
+      _isLoading = false;
+      notifyListeners();
+      return AuthResult.success();
+    } on FirebaseAuthException catch (e) {
+      _isLoading = false;
+      String errorMsg;
+      
+      switch (e.code) {
+        case 'user-not-found':
+          errorMsg = 'Aucun utilisateur trouvé avec cet email';
+          break;
+        case 'invalid-email':
+          errorMsg = 'Email invalide';
+          break;
+        default:
+          errorMsg = 'Erreur: ${e.message}';
+      }
+      
+      _errorMessage = errorMsg;
+      notifyListeners();
+      return AuthResult.error(errorMsg);
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = 'Erreur inattendue: $e';
+      notifyListeners();
+      return AuthResult.error(_errorMessage!);
+    }
   }
 }
 

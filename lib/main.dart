@@ -1,7 +1,9 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'app.dart';
+import 'firebase_options.dart';
 
 /// Point d'entrée principal de l'application
 ///
@@ -11,6 +13,16 @@ void main() async {
   // ===== INITIALISATION FLUTTER =====
   // OBLIGATOIRE quand on fait des opérations async avant runApp()
   WidgetsFlutterBinding.ensureInitialized();
+
+  // ===== INITIALISATION FIREBASE =====
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    debugPrint('✅ Firebase initialisé avec succès');
+  } catch (e) {
+    debugPrint('❌ Erreur d\'initialisation Firebase: $e');
+  }
 
   // ===== CONFIGURATION DE L'INTERFACE SYSTÈME =====
   // Configure la barre de statut et la navigation (Android/iOS)
@@ -32,9 +44,6 @@ void main() async {
     DeviceOrientation.portraitUp, // Portrait normal
     DeviceOrientation.portraitDown, // Portrait inversé
   ]);
-
-  // TODO: Le Lead Auth initialisera Firebase ici
-  // await Firebase.initializeApp();
 
   // ===== LANCEMENT DE L'APPLICATION =====
   runApp(const TodoApp());

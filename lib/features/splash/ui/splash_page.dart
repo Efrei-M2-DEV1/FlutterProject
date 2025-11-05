@@ -14,7 +14,9 @@ class _SplashPageState extends State<SplashPage> {
     super.initState();
     Future<void>.delayed(const Duration(milliseconds: 600), () {
       // TODO: remplacer par vérif de session Firebase
-      context.go('/auth');
+      if (mounted) {
+        context.go('/auth');
+      }
     });
   }
 
