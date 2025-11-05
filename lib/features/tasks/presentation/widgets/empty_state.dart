@@ -83,7 +83,7 @@ class _EmptyStateState extends State<EmptyState> with TickerProviderStateMixin {
             return FadeTransition(
               opacity: _fadeAnimation,
               child: Center(
-                child: Padding(
+                child: SingleChildScrollView(
                   padding: AppTheme.paddingLarge,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,

@@ -14,6 +14,10 @@ class Task {
   final DateTime createdAt;
   final DateTime? dueDate;
   final List<String> tags;
+  
+  /// Liste des UIDs des utilisateurs assignés à cette tâche (en plus du créateur)
+  /// Le créateur (ownerId) a toujours accès, pas besoin de l'ajouter ici
+  final List<String> assignedTo;
 
   const Task({
     required this.id,
@@ -26,6 +30,7 @@ class Task {
     required this.createdAt,
     this.dueDate,
     this.tags = const [],
+    this.assignedTo = const [],
   });
 
   /// Créer une copie modifiée de la tâche
@@ -40,6 +45,7 @@ class Task {
     DateTime? createdAt,
     DateTime? dueDate,
     List<String>? tags,
+    List<String>? assignedTo,
   }) {
     return Task(
       id: id ?? this.id,
@@ -52,6 +58,7 @@ class Task {
       createdAt: createdAt ?? this.createdAt,
       dueDate: dueDate ?? this.dueDate,
       tags: tags ?? this.tags,
+      assignedTo: assignedTo ?? this.assignedTo,
     );
   }
 
@@ -81,6 +88,7 @@ class Task {
       'isCompleted': isCompleted,
       'priority': priority.value,
       'tags': tags,
+      'assignedTo': assignedTo, // Liste des UIDs assignés
     };
 
     // Owner info
@@ -134,6 +142,12 @@ class Task {
       tags = tagsRaw.map((e) => e.toString()).toList();
     }
 
+    final assignedToRaw = map['assignedTo'];
+    List<String> assignedTo = [];
+    if (assignedToRaw is List) {
+      assignedTo = assignedToRaw.map((e) => e.toString()).toList();
+    }
+
     final ownerId = map['userId']?.toString() ?? '';
     final ownerName = map['ownerName']?.toString() ?? '';
 
@@ -148,6 +162,7 @@ class Task {
       createdAt: createdAt,
       dueDate: dueDate,
       tags: tags,
+      assignedTo: assignedTo,
     );
   }
 }

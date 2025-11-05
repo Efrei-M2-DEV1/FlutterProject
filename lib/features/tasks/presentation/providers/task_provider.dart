@@ -119,6 +119,21 @@ class TaskProvider extends ChangeNotifier {
     }
   }
 
+  /// Assigner un utilisateur à une tâche
+  Future<void> assignUserToTask(String taskId, String userId) async {
+    await _taskService.assignUserToTask(taskId, userId);
+  }
+
+  /// Retirer un utilisateur assigné d'une tâche
+  Future<void> unassignUserFromTask(String taskId, String userId) async {
+    await _taskService.unassignUserFromTask(taskId, userId);
+  }
+
+  /// Récupérer la liste de tous les utilisateurs
+  Future<List<Map<String, dynamic>>> getAllUsers() async {
+    return await _taskService.getAllUsers();
+  }
+
   // ===== FILTRES ET TRI =====
 
   /// Changer le filtre
