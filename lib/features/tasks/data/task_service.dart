@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:rxdart/rxdart.dart';
 
 import '../domain/models/task.dart';
 
@@ -12,17 +13,60 @@ class TaskService {
 
   // Using per-user subcollections now; no global _tasksCollection required.
 
-  /// Retourne un stream des tâches du user courant
+  /// Retourne un stream des tâches visibles pour l'utilisateur courant
+  /// (tâches créées par lui OU tâches où il est assigné)
+  /// Attend que l'utilisateur soit connecté avant de commencer à écouter
   Stream<List<Task>> tasksStream() {
-    // Return a global tasks stream (includes owner fields) so the UI can list all tasks
-    final col = _firestore.collection('tasks');
-    return col
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map(
-          (snap) =>
-              snap.docs.map((d) => Task.fromMap(d.data(), id: d.id)).toList(),
-        );
+    // Écouter les changements d'authentification et basculer sur le stream approprié
+    return _auth.authStateChanges().switchMap((user) {
+      if (user == null) {
+        // Pas d'utilisateur connecté, retourner un stream vide
+        return Stream.value(<Task>[]);
+      }
+
+      final uid = user.uid;
+      final col = _firestore.collection('tasks');
+      
+      // Firestore ne supporte pas les requêtes OR directement.
+      // On va donc récupérer les deux streams et les combiner:
+      // 1. Tâches créées par l'utilisateur
+      // 2. Tâches où l'utilisateur est assigné
+      
+      final myTasksStream = col
+          .where('userId', isEqualTo: uid)
+          .orderBy('createdAt', descending: true)
+          .snapshots()
+          .map((snap) =>
+              snap.docs.map((d) => Task.fromMap(d.data(), id: d.id)).toList());
+
+      final assignedTasksStream = col
+          .where('assignedTo', arrayContains: uid)
+          .orderBy('createdAt', descending: true)
+          .snapshots()
+          .map((snap) =>
+              snap.docs.map((d) => Task.fromMap(d.data(), id: d.id)).toList());
+
+      // Combiner les deux streams et éliminer les doublons
+      return Rx.combineLatest2<List<Task>, List<Task>, List<Task>>(
+        myTasksStream,
+        assignedTasksStream,
+        (myTasks, assignedTasks) {
+          // Créer un Map pour éliminer les doublons (par id)
+          final Map<String, Task> uniqueTasks = {};
+          for (var task in myTasks) {
+            uniqueTasks[task.id] = task;
+          }
+          for (var task in assignedTasks) {
+            uniqueTasks[task.id] = task;
+          }
+          
+          // Retourner la liste triée par date de création
+          final allTasks = uniqueTasks.values.toList();
+          allTasks.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          return allTasks;
+        },
+      );
+    });
   }
 
   Future<void> addTask(Task task) async {
@@ -94,6 +138,58 @@ class TaskService {
       throw Exception(
         'Firestore toggleCompleted failed: ${e.code} ${e.message}',
       );
+    }
+  }
+
+  /// Assigner un utilisateur à une tâche
+  Future<void> assignUserToTask(String taskId, String userIdToAssign) async {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) throw Exception('Utilisateur non authentifié');
+    try {
+      await _firestore.collection('tasks').doc(taskId).update({
+        'assignedTo': FieldValue.arrayUnion([userIdToAssign]),
+      });
+    } on FirebaseException catch (e) {
+      throw Exception(
+        'Firestore assignUserToTask failed: ${e.code} ${e.message}',
+      );
+    }
+  }
+
+  /// Retirer un utilisateur assigné d'une tâche
+  Future<void> unassignUserFromTask(
+    String taskId,
+    String userIdToRemove,
+  ) async {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) throw Exception('Utilisateur non authentifié');
+    try {
+      await _firestore.collection('tasks').doc(taskId).update({
+        'assignedTo': FieldValue.arrayRemove([userIdToRemove]),
+      });
+    } on FirebaseException catch (e) {
+      throw Exception(
+        'Firestore unassignUserFromTask failed: ${e.code} ${e.message}',
+      );
+    }
+  }
+
+  /// Récupérer la liste des utilisateurs (pour l'assignation)
+  Future<List<Map<String, dynamic>>> getAllUsers() async {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) throw Exception('Utilisateur non authentifié');
+    try {
+      final snapshot = await _firestore.collection('users').get();
+      return snapshot.docs
+          .map((doc) => {
+                'id': doc.id,
+                'name': doc.data()['name'] ?? doc.data()['displayName'] ?? '',
+                'email': doc.data()['email'] ?? '',
+              })
+          .where((user) => user['id'] != uid) // Exclure l'utilisateur courant
+          .toList();
+    } on FirebaseException catch (e) {
+      throw Exception('Firestore getAllUsers failed: ${e.code} ${e.message}');
     }
   }
 }

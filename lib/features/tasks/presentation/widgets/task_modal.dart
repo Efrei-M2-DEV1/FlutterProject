@@ -7,6 +7,7 @@ import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../../domain/models/task.dart';
 import '../providers/task_provider.dart';
+import 'assign_users_dialog.dart';
 
 /// Modal élégant pour créer/éditer une tâche - VERSION STABLE
 class TaskModal extends StatefulWidget {
@@ -244,6 +245,12 @@ class _TaskModalState extends State<TaskModal> {
           // Sélection de date
           _buildDateSelector(),
 
+          // Bouton d'assignation (seulement en mode édition)
+          if (_isEditing) ...[
+            const SizedBox(height: 30),
+            _buildAssignUsersButton(),
+          ],
+
           const SizedBox(height: 40),
 
           // Boutons d'action
@@ -377,6 +384,46 @@ class _TaskModalState extends State<TaskModal> {
                     ),
                   ),
               ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAssignUsersButton() {
+    final assignedCount = widget.task?.assignedTo.length ?? 0;
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Collaboration',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: AppColors.onSurface,
+          ),
+        ),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) => AssignUsersDialog(task: widget.task!),
+            );
+          },
+          icon: const Icon(Icons.people_outline),
+          label: Text(
+            assignedCount > 0
+                ? 'Gérer les utilisateurs assignés ($assignedCount)'
+                : 'Assigner des utilisateurs',
+          ),
+          style: OutlinedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            side: BorderSide(color: AppColors.primary.withOpacity(0.3)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
         ),
