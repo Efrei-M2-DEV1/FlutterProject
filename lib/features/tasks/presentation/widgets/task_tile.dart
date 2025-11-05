@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/models/task.dart';
+import '../../domain/models/task_category.dart';
 
 /// Tuile élégante pour afficher une tâche
 class TaskTile extends StatefulWidget {
@@ -229,7 +230,53 @@ class _TaskTileState extends State<TaskTile>
           ],
         ),
 
-        // Deuxième ligne : Créateur et Utilisateurs assignés
+        // Deuxième ligne : Tags/Catégories
+        if (widget.task.tags.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            runSpacing: 4,
+            children: [
+              // Afficher tous les tags
+              ...widget.task.tags.map((tagId) {
+                final category = TaskCategory.findById(tagId);
+                if (category == null) return const SizedBox.shrink();
+
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: category.color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: category.color.withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(category.icon, size: 12, color: category.color),
+                      const SizedBox(width: 4),
+                      Text(
+                        category.label,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: category.color,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ],
+          ),
+        ],
+
+        // Troisième ligne : Créateur et Utilisateurs assignés
         if (widget.task.ownerName.isNotEmpty ||
             widget.task.assignedTo.isNotEmpty) ...[
           const SizedBox(height: 8),

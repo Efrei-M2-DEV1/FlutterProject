@@ -24,8 +24,13 @@ class FirestoreTaskService {
       'isCompleted': task.isCompleted,
       'priority': task.priority.value,
       'createdAt': Timestamp.fromDate(task.createdAt),
-      'dueDate': task.dueDate != null ? Timestamp.fromDate(task.dueDate!) : null,
+      'dueDate': task.dueDate != null
+          ? Timestamp.fromDate(task.dueDate!)
+          : null,
       'tags': task.tags,
+      'userId': task.ownerId,
+      'ownerName': task.ownerName,
+      'assignedTo': task.assignedTo,
     };
   }
 
@@ -35,11 +40,14 @@ class FirestoreTaskService {
       id: id,
       title: data['title'] as String? ?? '',
       description: data['description'] as String? ?? '',
+      ownerId: data['userId'] as String? ?? '',
+      ownerName: data['ownerName'] as String? ?? '',
       isCompleted: data['isCompleted'] as bool? ?? false,
       priority: TaskPriority.values[(data['priority'] as int? ?? 2) - 1],
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       dueDate: (data['dueDate'] as Timestamp?)?.toDate(),
       tags: List<String>.from(data['tags'] as List? ?? []),
+      assignedTo: List<String>.from(data['assignedTo'] as List? ?? []),
     );
   }
 
@@ -48,9 +56,17 @@ class FirestoreTaskService {
   /// Créer une nouvelle tâche dans Firestore
   Future<String> createTask(Task task) async {
     try {
-      final docRef = await _tasksCollection.add(_taskToMap(task));
+      final taskData = _taskToMap(task);
+      print('🔥 Firestore createTask - Données envoyées: $taskData');
+      print('🔥 userId: ${taskData['userId']}');
+      print('🔥 ownerName: ${taskData['ownerName']}');
+      print('🔥 tags: ${taskData['tags']}');
+
+      final docRef = await _tasksCollection.add(taskData);
+      print('✅ Tâche créée avec succès: ${docRef.id}');
       return docRef.id;
     } catch (e) {
+      print('❌ Erreur Firestore createTask: $e');
       throw Exception('Erreur lors de la création de la tâche: $e');
     }
   }
@@ -77,10 +93,10 @@ class FirestoreTaskService {
           .orderBy('createdAt', descending: true)
           .snapshots()
           .map((snapshot) {
-        return snapshot.docs
-            .map((doc) => _mapToTask(doc.id, doc.data()))
-            .toList();
-      });
+            return snapshot.docs
+                .map((doc) => _mapToTask(doc.id, doc.data()))
+                .toList();
+          });
     } catch (e) {
       throw Exception('Erreur lors de l\'écoute des tâches: $e');
     }
@@ -107,10 +123,10 @@ class FirestoreTaskService {
           .orderBy('createdAt', descending: true)
           .snapshots()
           .map((snapshot) {
-        return snapshot.docs
-            .map((doc) => _mapToTask(doc.id, doc.data()))
-            .toList();
-      });
+            return snapshot.docs
+                .map((doc) => _mapToTask(doc.id, doc.data()))
+                .toList();
+          });
     } catch (e) {
       throw Exception('Erreur lors de l\'écoute des tâches: $e');
     }
@@ -151,8 +167,9 @@ class FirestoreTaskService {
   /// Supprimer toutes les tâches complétées
   Future<int> deleteCompletedTasks() async {
     try {
-      final snapshot =
-          await _tasksCollection.where('isCompleted', isEqualTo: true).get();
+      final snapshot = await _tasksCollection
+          .where('isCompleted', isEqualTo: true)
+          .get();
 
       final batch = _firestore.batch();
       for (var doc in snapshot.docs) {

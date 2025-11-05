@@ -150,13 +150,13 @@ class _LoginScreenState extends State<LoginScreen>
     if (emailToReset != null && mounted) {
       // Simuler l'envoi de l'email
       setState(() => _isLoading = true);
-      
+
       await Future.delayed(const Duration(seconds: 1));
-      
+
       if (!mounted) return;
-      
+
       setState(() => _isLoading = false);
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -321,7 +321,7 @@ class _LoginScreenState extends State<LoginScreen>
               label: 'Mot de passe',
               hint: 'Votre mot de passe',
               prefixIcon: Icons.lock_outlined,
-              obscureText: !_obscurePassword,
+              obscureText: _obscurePassword,
               suffixIcon: IconButton(
                 icon: Icon(
                   _obscurePassword ? Icons.visibility_off : Icons.visibility,
