@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -8,6 +9,7 @@ import '../../../../shared/widgets/custom_text_field.dart';
 import '../../domain/models/task.dart';
 import '../providers/task_provider.dart';
 import 'assign_users_dialog.dart';
+import 'tag_selector.dart';
 
 /// Modal élégant pour créer/éditer une tâche - VERSION STABLE
 class TaskModal extends StatefulWidget {
@@ -26,6 +28,7 @@ class _TaskModalState extends State<TaskModal> {
 
   TaskPriority _selectedPriority = TaskPriority.medium;
   DateTime? _selectedDueDate;
+  List<String> _selectedTags = [];
 
   bool get _isEditing => widget.task != null;
 
@@ -39,6 +42,7 @@ class _TaskModalState extends State<TaskModal> {
       _descriptionController.text = widget.task!.description;
       _selectedPriority = widget.task!.priority;
       _selectedDueDate = widget.task!.dueDate;
+      _selectedTags = List.from(widget.task!.tags);
     }
   }
 
@@ -77,6 +81,22 @@ class _TaskModalState extends State<TaskModal> {
     if (!_formKey.currentState!.validate()) return;
 
     final taskProvider = context.read<TaskProvider>();
+    final currentUser = FirebaseAuth.instance.currentUser;
+
+    print('🔐 TaskModal - Utilisateur connecté: ${currentUser?.uid}');
+    print('🔐 TaskModal - Email: ${currentUser?.email}');
+    print('🔐 TaskModal - DisplayName: ${currentUser?.displayName}');
+
+    if (currentUser == null) {
+      // L'utilisateur n'est pas connecté, on ne peut pas créer de tâche
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vous devez être connecté pour créer une tâche'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
     if (_isEditing) {
       // Modifier la tâche existante
@@ -85,19 +105,30 @@ class _TaskModalState extends State<TaskModal> {
         description: _descriptionController.text.trim(),
         priority: _selectedPriority,
         dueDate: _selectedDueDate,
+        tags: _selectedTags,
       );
+      print('📝 TaskModal - Modification tâche: ${updatedTask.id}');
       taskProvider.updateTask(updatedTask);
     } else {
-      // Créer une nouvelle tâche
+      // Créer une nouvelle tâche avec ownerId et ownerName
       final newTask = Task(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim(),
+        ownerId: currentUser.uid,
+        ownerName:
+            currentUser.displayName ?? currentUser.email ?? 'Utilisateur',
         priority: _selectedPriority,
         createdAt: DateTime.now(),
         dueDate: _selectedDueDate,
-        assignedTo: const [], // ✅ AJOUT : Initialiser explicitement assignedTo
+        assignedTo: const [],
+        tags: _selectedTags,
       );
+      print('✨ TaskModal - Création nouvelle tâche:');
+      print('   - title: ${newTask.title}');
+      print('   - ownerId: ${newTask.ownerId}');
+      print('   - ownerName: ${newTask.ownerName}');
+      print('   - tags: ${newTask.tags}');
       taskProvider.addTask(newTask);
     }
 
@@ -245,6 +276,22 @@ class _TaskModalState extends State<TaskModal> {
 
           // Sélection de date
           _buildDateSelector(),
+
+          const SizedBox(height: 30),
+
+          // Sélection de tags/catégories
+          TagSelector(
+            selectedTags: _selectedTags,
+            onTagToggle: (tagId) {
+              setState(() {
+                if (_selectedTags.contains(tagId)) {
+                  _selectedTags.remove(tagId);
+                } else {
+                  _selectedTags.add(tagId);
+                }
+              });
+            },
+          ),
 
           // Bouton d'assignation (seulement en mode édition)
           if (_isEditing) ...[

@@ -29,10 +29,19 @@ class _TaskListScreenState extends State<TaskListScreen>
     with TickerProviderStateMixin {
   late AnimationController _fabAnimationController;
   late Animation<double> _fabScaleAnimation;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
+
+    // Écouter les changements de recherche
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text.toLowerCase();
+      });
+    });
 
     // Charger les données de test
     // Les tâches sont maintenant fournies par TaskService -> TaskProvider via Firestore
@@ -58,6 +67,7 @@ class _TaskListScreenState extends State<TaskListScreen>
 
   @override
   void dispose() {
+    _searchController.dispose();
     _fabAnimationController.dispose();
     super.dispose();
   }
@@ -163,9 +173,10 @@ class _TaskListScreenState extends State<TaskListScreen>
           return CustomScrollView(
             slivers: [
               _buildAppBar(),
+              _buildSearchBar(),
               _buildStatsSection(taskProvider.stats),
               _buildFiltersSection(),
-              _buildTasksList(taskProvider.filteredTasks),
+              _buildTasksList(_filterTasks(taskProvider.filteredTasks)),
             ],
           );
         },
@@ -272,6 +283,79 @@ class _TaskListScreenState extends State<TaskListScreen>
           onPressed: _showLogoutDialog,
         ),
       ],
+    );
+  }
+
+  /// Filtre les tâches selon la requête de recherche
+  List<Task> _filterTasks(List<Task> tasks) {
+    if (_searchQuery.isEmpty) return tasks;
+
+    return tasks.where((task) {
+      final titleMatch = task.title.toLowerCase().contains(_searchQuery);
+      final descriptionMatch = task.description.toLowerCase().contains(
+        _searchQuery,
+      );
+      final tagsMatch = task.tags.any(
+        (tag) => tag.toLowerCase().contains(_searchQuery),
+      );
+
+      return titleMatch || descriptionMatch || tagsMatch;
+    }).toList();
+  }
+
+  /// Barre de recherche élégante et animée
+  Widget _buildSearchBar() {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.getSurfaceVariant(context),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: TextField(
+            controller: _searchController,
+            style: TextStyle(
+              color: AppColors.getOnSurface(context),
+              fontSize: 16,
+            ),
+            decoration: InputDecoration(
+              hintText: 'Rechercher des tâches...',
+              hintStyle: TextStyle(
+                color: AppColors.getOnSurfaceVariant(context).withOpacity(0.6),
+              ),
+              prefixIcon: Icon(
+                Icons.search_rounded,
+                color: AppColors.primary,
+                size: 24,
+              ),
+              suffixIcon: _searchQuery.isNotEmpty
+                  ? IconButton(
+                      icon: Icon(
+                        Icons.clear_rounded,
+                        color: AppColors.getOnSurfaceVariant(context),
+                      ),
+                      onPressed: () {
+                        _searchController.clear();
+                      },
+                    )
+                  : null,
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 16,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
