@@ -14,7 +14,7 @@ class Task {
   final DateTime createdAt;
   final DateTime? dueDate;
   final List<String> tags;
-  
+
   /// Liste des UIDs des utilisateurs assignés à cette tâche (en plus du créateur)
   /// Le créateur (ownerId) a toujours accès, pas besoin de l'ajouter ici
   final List<String> assignedTo;

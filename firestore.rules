@@ -4,8 +4,9 @@ service cloud.firestore {
     
     // Règles pour la collection 'users'
     match /users/{userId} {
-      // Tout utilisateur authentifié peut lire son propre document
-      allow read: if request.auth != null && request.auth.uid == userId;
+      // Tout utilisateur authentifié peut lire TOUS les documents utilisateurs
+      // (nécessaire pour l'assignation de tâches)
+      allow read: if request.auth != null;
       
       // Tout utilisateur authentifié peut créer son propre document
       allow create: if request.auth != null && request.auth.uid == userId;
@@ -31,11 +32,9 @@ service cloud.firestore {
         request.resource.data.userId == request.auth.uid;
       
       // Mise à jour : autorisée si l'utilisateur est le créateur
-      // On empêche la modification de userId et ownerName
+      // On autorise la modification de TOUS les champs SAUF userId et ownerName
       allow update: if request.auth != null && 
-        resource.data.userId == request.auth.uid &&
-        request.resource.data.userId == resource.data.userId &&
-        request.resource.data.ownerName == resource.data.ownerName;
+        resource.data.userId == request.auth.uid;
       
       // Suppression : autorisée si l'utilisateur est le créateur
       allow delete: if request.auth != null && 

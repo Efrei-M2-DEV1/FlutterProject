@@ -174,12 +174,11 @@ class TaskProvider extends ChangeNotifier {
       case TaskSort.createdAt:
         return tasks..sort((a, b) => b.createdAt.compareTo(a.createdAt));
       case TaskSort.dueDate:
-        return tasks
-          ..sort((a, b) {
-            final aDate = a.dueDate ?? DateTime(9999);
-            final bDate = b.dueDate ?? DateTime(9999);
-            return aDate.compareTo(bDate);
-          });
+        return tasks..sort((a, b) {
+          final aDate = a.dueDate ?? DateTime(9999);
+          final bDate = b.dueDate ?? DateTime(9999);
+          return aDate.compareTo(bDate);
+        });
     }
   }
 

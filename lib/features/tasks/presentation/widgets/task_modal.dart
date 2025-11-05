@@ -96,6 +96,7 @@ class _TaskModalState extends State<TaskModal> {
         priority: _selectedPriority,
         createdAt: DateTime.now(),
         dueDate: _selectedDueDate,
+        assignedTo: const [], // ✅ AJOUT : Initialiser explicitement assignedTo
       );
       taskProvider.addTask(newTask);
     }
@@ -392,8 +393,16 @@ class _TaskModalState extends State<TaskModal> {
   }
 
   Widget _buildAssignUsersButton() {
-    final assignedCount = widget.task?.assignedTo.length ?? 0;
-    
+    // Récupérer la tâche à jour depuis le Provider si on modifie une tâche existante
+    final currentTask = widget.task != null
+        ? context.watch<TaskProvider>().allTasks.firstWhere(
+            (t) => t.id == widget.task!.id,
+            orElse: () => widget.task!,
+          )
+        : null;
+
+    final assignedCount = currentTask?.assignedTo.length ?? 0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -410,7 +419,7 @@ class _TaskModalState extends State<TaskModal> {
           onPressed: () {
             showDialog(
               context: context,
-              builder: (context) => AssignUsersDialog(task: widget.task!),
+              builder: (context) => AssignUsersDialog(task: currentTask!),
             );
           },
           icon: const Icon(Icons.people_outline),
@@ -436,7 +445,7 @@ class _TaskModalState extends State<TaskModal> {
       children: [
         Expanded(
           child: CustomButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: _saveTask,
             variant: ButtonVariant.outline,
             child: const Text('Annuler'),
           ),
@@ -447,7 +456,7 @@ class _TaskModalState extends State<TaskModal> {
         Expanded(
           flex: 2,
           child: CustomButton(
-            onPressed: _saveTask,
+            onPressed: () => Navigator.of(context).pop(),
             child: Text(_isEditing ? 'Modifier' : 'Créer'),
           ),
         ),
