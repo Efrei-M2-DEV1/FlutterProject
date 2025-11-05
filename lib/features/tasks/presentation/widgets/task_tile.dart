@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -205,23 +206,132 @@ class _TaskTileState extends State<TaskTile>
 
         const SizedBox(height: 8),
 
-        // Métadonnées (priorité, date, etc.)
+        // Métadonnées (priorité, date, créateur, assignés)
         _buildMetadata(),
       ],
     );
   }
 
   Widget _buildMetadata() {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 4,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Priorité
-        _buildPriorityChip(),
+        // Première ligne : Priorité et Date
+        Wrap(
+          spacing: 8,
+          runSpacing: 4,
+          children: [
+            // Priorité
+            _buildPriorityChip(),
 
-        // Date d'échéance
-        if (widget.task.dueDate != null) _buildDueDateChip(),
+            // Date d'échéance
+            if (widget.task.dueDate != null) _buildDueDateChip(),
+          ],
+        ),
+
+        // Deuxième ligne : Créateur et Utilisateurs assignés
+        if (widget.task.ownerName.isNotEmpty ||
+            widget.task.assignedTo.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: [
+              // Badge du créateur
+              if (widget.task.ownerName.isNotEmpty) _buildOwnerBadge(),
+
+              // Badges des utilisateurs assignés
+              if (widget.task.assignedTo.isNotEmpty) _buildAssignedUsersBadge(),
+            ],
+          ),
+        ],
       ],
+    );
+  }
+
+  /// Badge élégant pour afficher le créateur de la tâche
+  Widget _buildOwnerBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.primary.withOpacity(0.1),
+            AppColors.secondary.withOpacity(0.1),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.primary.withOpacity(0.3),
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Avatar du créateur
+          CircleAvatar(
+            radius: 8,
+            backgroundColor: AppColors.primary,
+            child: Text(
+              widget.task.ownerName.isNotEmpty
+                  ? widget.task.ownerName[0].toUpperCase()
+                  : '?',
+              style: const TextStyle(
+                fontSize: 8,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            widget.task.ownerName,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: AppColors.primary,
+            ),
+          ),
+          const SizedBox(width: 2),
+          Icon(Icons.star, size: 10, color: AppColors.warning),
+        ],
+      ),
+    );
+  }
+
+  /// Badge pour afficher les utilisateurs assignés (avatars empilés)
+  Widget _buildAssignedUsersBadge() {
+    final assignedCount = widget.task.assignedTo.length;
+
+    if (kDebugMode) {
+      print(
+        '🎨 TaskTile: Affichage badge assignés - task.id=${widget.task.id}, assignedCount=$assignedCount, assignedTo=${widget.task.assignedTo}',
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.info.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.info.withOpacity(0.3), width: 1.5),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.people, size: 10, color: AppColors.info),
+          const SizedBox(width: 4),
+          Text(
+            '$assignedCount assigné${assignedCount > 1 ? 's' : ''}',
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: AppColors.info,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

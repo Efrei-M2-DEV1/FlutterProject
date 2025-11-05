@@ -121,14 +121,14 @@ class _MigrationScreenState extends State<MigrationScreen> {
                 _isMigrating
                     ? Icons.sync
                     : _status.contains('✅')
-                        ? Icons.check_circle
-                        : Icons.warning,
+                    ? Icons.check_circle
+                    : Icons.warning,
                 size: 80,
                 color: _isMigrating
                     ? AppColors.primary
                     : _status.contains('✅')
-                        ? AppColors.success
-                        : AppColors.warning,
+                    ? AppColors.success
+                    : AppColors.warning,
               ),
               const SizedBox(height: 32),
               Text(
