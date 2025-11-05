@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:provider/provider.dart';
+
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -58,8 +60,8 @@ class _RegisterScreenState extends State<RegisterScreen>
 
     _slideAnimation =
         Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
-    );
+          CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+        );
 
     // Démarrer l'animation
     _animationController.forward();
@@ -81,8 +83,8 @@ class _RegisterScreenState extends State<RegisterScreen>
 
     setState(() => _isLoading = true);
 
-    // Utiliser le service d'authentification
-    final authService = AuthService();
+    // Utiliser le service d'authentification fourni par Provider
+    final authService = context.read<AuthService>();
     final result = await authService.register(
       _emailController.text.trim(),
       _passwordController.text,
@@ -306,7 +308,8 @@ class _RegisterScreenState extends State<RegisterScreen>
                       : Icons.visibility,
                 ),
                 onPressed: () => setState(
-                    () => _obscureConfirmPassword = !_obscureConfirmPassword),
+                  () => _obscureConfirmPassword = !_obscureConfirmPassword,
+                ),
               ),
               validator: _validateConfirmPassword,
             ),

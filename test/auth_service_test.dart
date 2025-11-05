@@ -1,14 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutterproject/features/auth/data/auth_service.dart';
 
-/// Tests pour le service d'authentification
-/// 
-/// Note: Ces tests nécessitent Firebase Auth configuré.
-/// Pour l'instant, on teste uniquement la structure de base.
 void main() {
-  group('AuthService', () {
+  // Tests désactivés car AuthService nécessite Firebase initialisé
+  // Ces tests doivent être exécutés en integration tests avec Firebase Mock
+
+  group('AuthService - Tests unitaires (nécessite Firebase Mock)', () {
     test('AuthService can be instantiated', () {
-      // Test simple pour vérifier que la classe existe
+      // Test de base pour vérifier que la classe existe
       expect(AuthService, isNotNull);
     });
 
@@ -18,10 +17,15 @@ void main() {
       expect(result.errorMessage, isNull);
     });
 
-    test('AuthResult.error creates error result with message', () {
+    test('AuthResult.error creates error result', () {
       final result = AuthResult.error('Test error');
       expect(result.success, isFalse);
-      expect(result.errorMessage, equals('Test error'));
+      expect(result.errorMessage, 'Test error');
     });
   });
+
+  // NOTE: Pour tester AuthService avec Firebase, utilisez:
+  // 1. firebase_auth_mocks package
+  // 2. fake_cloud_firestore package
+  // 3. Ou des integration tests avec Firebase Emulator
 }

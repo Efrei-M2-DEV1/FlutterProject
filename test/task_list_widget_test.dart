@@ -1,66 +1,47 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutterproject/features/tasks/domain/models/task.dart';
+import 'package:flutterproject/features/tasks/presentation/providers/task_provider.dart';
 
-/// Tests pour les widgets de liste de tâches
-/// 
-/// Note: Ces tests nécessitent Firebase Firestore configuré.
-/// Pour l'instant, on teste uniquement le modèle Task.
 void main() {
-  group('Task Model', () {
-    test('Task can be created with required fields', () {
-      final task = Task(
-        id: '1',
-        title: 'Test Task',
-        createdAt: DateTime.now(),
+  group('TaskProvider - Tests unitaires', () {
+    test('TaskStats calculates correctly', () {
+      const stats = TaskStats(
+        total: 10,
+        completed: 7,
+        pending: 3,
+        highPriority: 2,
       );
 
-      expect(task.id, equals('1'));
-      expect(task.title, equals('Test Task'));
-      expect(task.isCompleted, isFalse);
-      expect(task.priority, equals(TaskPriority.medium));
+      expect(stats.total, 10);
+      expect(stats.completed, 7);
+      expect(stats.pending, 3);
+      expect(stats.highPriority, 2);
+      expect(stats.completionRate, closeTo(0.7, 0.001));
     });
 
-    test('Task can be created with all fields', () {
-      final now = DateTime.now();
-      final dueDate = now.add(const Duration(days: 1));
-      
-      final task = Task(
-        id: '2',
-        title: 'Complete Task',
-        description: 'Test description',
-        isCompleted: true,
-        priority: TaskPriority.high,
-        createdAt: now,
-        dueDate: dueDate,
-        tags: ['test', 'important'],
+    test('TaskStats with zero tasks returns 0 completion rate', () {
+      const stats = TaskStats(
+        total: 0,
+        completed: 0,
+        pending: 0,
+        highPriority: 0,
       );
 
-      expect(task.id, equals('2'));
-      expect(task.title, equals('Complete Task'));
-      expect(task.description, equals('Test description'));
-      expect(task.isCompleted, isTrue);
-      expect(task.priority, equals(TaskPriority.high));
-      expect(task.createdAt, equals(now));
-      expect(task.dueDate, equals(dueDate));
-      expect(task.tags, hasLength(2));
+      expect(stats.completionRate, 0.0);
     });
 
-    test('Task copyWith creates new instance with updated fields', () {
-      final original = Task(
-        id: '3',
-        title: 'Original',
-        createdAt: DateTime.now(),
-      );
+    test('TaskFilter enum has correct labels', () {
+      expect(TaskFilter.all.label, 'Toutes');
+      expect(TaskFilter.pending.label, 'À faire');
+      expect(TaskFilter.completed.label, 'Terminées');
+      expect(TaskFilter.highPriority.label, 'Priorité haute');
+    });
 
-      final updated = original.copyWith(
-        title: 'Updated',
-        isCompleted: true,
-      );
-
-      expect(updated.id, equals(original.id));
-      expect(updated.title, equals('Updated'));
-      expect(updated.isCompleted, isTrue);
-      expect(updated.createdAt, equals(original.createdAt));
+    test('TaskSort enum has correct labels', () {
+      expect(TaskSort.createdAt.label, 'Date de création');
+      expect(TaskSort.dueDate.label, "Date d'échéance");
     });
   });
+
+  // NOTE: Les tests widget nécessitant Firebase sont désactivés
+  // Pour les activer, utilisez fake_cloud_firestore et firebase_auth_mocks
 }

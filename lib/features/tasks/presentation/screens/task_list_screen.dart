@@ -35,9 +35,7 @@ class _TaskListScreenState extends State<TaskListScreen>
     super.initState();
 
     // Charger les données de test
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TaskProvider>().loadTestData();
-    });
+    // Les tâches sont maintenant fournies par TaskService -> TaskProvider via Firestore
 
     // Animation du FAB
     _fabAnimationController = AnimationController(
@@ -114,6 +112,54 @@ class _TaskListScreenState extends State<TaskListScreen>
             return _buildLoadingState();
           }
 
+          if (taskProvider.errorMessage != null) {
+            // Afficher un message lisible en cas d'erreur (par ex. index Firestore manquant)
+            return CustomScrollView(
+              slivers: [
+                SliverFillRemaining(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            size: 64,
+                            color: Colors.red,
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'Erreur Cloud Firestore',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            taskProvider.errorMessage!,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          TextButton(
+                            onPressed: () {
+                              // Ouvrir la console Firebase (non disponible ici) — instructions manuelles ci-dessous
+                            },
+                            child: const Text(
+                              'Voir les indexes dans la console Firebase',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+
           return CustomScrollView(
             slivers: [
               _buildAppBar(),
@@ -179,15 +225,14 @@ class _TaskListScreenState extends State<TaskListScreen>
             final email = authService.currentUserEmail;
             if (email != null) {
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8.0,
+                  vertical: 8.0,
+                ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
-                      Icons.person,
-                      size: 18,
-                      color: Colors.white,
-                    ),
+                    const Icon(Icons.person, size: 18, color: Colors.white),
                     const SizedBox(width: 6),
                     Text(
                       email,

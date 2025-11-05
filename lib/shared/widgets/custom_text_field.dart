@@ -49,10 +49,10 @@ class CustomTextField extends StatelessWidget {
         // Label du champ
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: AppColors.onSurface,
+            color: AppColors.getOnSurface(context),
           ),
         ),
 
@@ -68,7 +68,10 @@ class CustomTextField extends StatelessWidget {
           onFieldSubmitted: onSubmitted,
           maxLines: maxLines,
           enabled: enabled,
-          style: const TextStyle(fontSize: 16, color: AppColors.onSurface),
+          style: TextStyle(
+            fontSize: 16,
+            color: AppColors.getOnSurface(context),
+          ),
           decoration: InputDecoration(
             // Texte d'aide
             hintText: hint,
