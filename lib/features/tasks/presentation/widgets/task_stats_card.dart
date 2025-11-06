@@ -4,7 +4,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../providers/task_provider.dart';
 
-/// Carte de statistiques avec animations
 class TaskStatsCard extends StatefulWidget {
   final TaskStats stats;
 
@@ -28,7 +27,6 @@ class _TaskStatsCardState extends State<TaskStatsCard>
       vsync: this,
     );
 
-    // Créer des animations décalées pour chaque statistique
     _progressAnimations = List.generate(4, (index) {
       return Tween<double>(begin: 0.0, end: 1.0).animate(
         CurvedAnimation(
@@ -121,8 +119,6 @@ class _TaskStatsCardState extends State<TaskStatsCard>
             ],
           ),
         ),
-
-        // Indicateur circulaire de progression
         AnimatedBuilder(
           animation: _progressAnimations[0],
           builder: (context, child) {

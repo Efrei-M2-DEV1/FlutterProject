@@ -5,7 +5,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../domain/models/task.dart';
 import '../providers/task_provider.dart';
 
-/// Dialog élégant et moderne pour assigner des utilisateurs à une tâche
 class AssignUsersDialog extends StatefulWidget {
   final Task task;
 
@@ -27,19 +26,16 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
-  // Sauvegarder l'état initial pour permettre l'annulation
   late List<String> _initialAssignedUsers;
 
   @override
   void initState() {
     super.initState();
 
-    // Sauvegarder l'état initial des assignations
     _initialAssignedUsers = List<String>.from(widget.task.assignedTo);
 
     _loadUsers();
 
-    // Animations d'entrée
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
@@ -103,7 +99,6 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
     });
   }
 
-  /// Annule toutes les modifications et restaure l'état initial
   Future<void> _cancelChanges() async {
     try {
       final provider = context.read<TaskProvider>();
@@ -112,17 +107,14 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
       );
       final currentAssignedUsers = currentTask.assignedTo;
 
-      // Trouver les utilisateurs à retirer (qui ont été ajoutés)
       final usersToRemove = currentAssignedUsers
           .where((userId) => !_initialAssignedUsers.contains(userId))
           .toList();
 
-      // Trouver les utilisateurs à rajouter (qui ont été retirés)
       final usersToAdd = _initialAssignedUsers
           .where((userId) => !currentAssignedUsers.contains(userId))
           .toList();
 
-      // Effectuer les modifications pour restaurer l'état initial
       for (final userId in usersToRemove) {
         await provider.unassignUserFromTask(widget.task.id, userId);
       }
@@ -155,7 +147,6 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
           ),
         );
 
-        // Fermer le dialog après avoir annulé
         Navigator.of(context).pop();
       }
     } catch (e) {
@@ -174,14 +165,11 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
     try {
       final provider = context.read<TaskProvider>();
       if (isAssigned) {
-        // L'utilisateur EST déjà assigné → on le RETIRE
         await provider.unassignUserFromTask(widget.task.id, userId);
       } else {
-        // L'utilisateur N'EST PAS assigné → on l'AJOUTE
         await provider.assignUserToTask(widget.task.id, userId);
       }
 
-      // Animation de succès
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -272,7 +260,6 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
   }
 
   Widget _buildHeader() {
-    // Récupérer la tâche à jour depuis le Provider
     final currentTask = context.watch<TaskProvider>().allTasks.firstWhere(
       (t) => t.id == widget.task.id,
       orElse: () => widget.task,
@@ -491,14 +478,12 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
     final userName = user['name'] as String? ?? 'Sans nom';
     final userEmail = user['email'] as String? ?? '';
 
-    // Récupérer la tâche à jour depuis le Provider
     final currentTask = context.watch<TaskProvider>().allTasks.firstWhere(
       (t) => t.id == widget.task.id,
       orElse: () => widget.task,
     );
     final isAssigned = currentTask.assignedTo.contains(userId);
 
-    // Couleur de l'avatar basée sur le nom
     final avatarColor = _getAvatarColor(userName);
 
     return AnimatedContainer(
@@ -613,7 +598,6 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
   }
 
   Widget _buildFooter() {
-    // Récupérer la tâche à jour depuis le Provider
     final currentTask = context.watch<TaskProvider>().allTasks.firstWhere(
       (t) => t.id == widget.task.id,
       orElse: () => widget.task,
@@ -638,7 +622,6 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
               ),
             ),
           ),
-          // Bouton Annuler - Restaure l'état initial
           TextButton(
             onPressed: _cancelChanges,
             style: TextButton.styleFrom(
@@ -648,7 +631,6 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
             child: const Text('Annuler'),
           ),
           const SizedBox(width: 8),
-          // Bouton Modifier - Ferme le dialog (changements déjà appliqués)
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(),
             style: ElevatedButton.styleFrom(
@@ -666,7 +648,6 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
     );
   }
 
-  /// Génère une couleur d'avatar basée sur le nom
   Color _getAvatarColor(String name) {
     final colors = [
       AppColors.primary,

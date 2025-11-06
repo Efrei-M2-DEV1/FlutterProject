@@ -17,7 +17,6 @@ import '../widgets/task_stats_card.dart';
 import '../widgets/task_tile.dart';
 import '../widgets/task_sort_button.dart';
 
-/// Écran principal des tâches avec interface moderne
 class TaskListScreen extends StatefulWidget {
   const TaskListScreen({super.key});
 
@@ -36,17 +35,12 @@ class _TaskListScreenState extends State<TaskListScreen>
   void initState() {
     super.initState();
 
-    // Écouter les changements de recherche
     _searchController.addListener(() {
       setState(() {
         _searchQuery = _searchController.text.toLowerCase();
       });
     });
 
-    // Charger les données de test
-    // Les tâches sont maintenant fournies par TaskService -> TaskProvider via Firestore
-
-    // Animation du FAB
     _fabAnimationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -59,7 +53,6 @@ class _TaskListScreenState extends State<TaskListScreen>
       ),
     );
 
-    // Délai avant l'apparition du FAB
     Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) _fabAnimationController.forward();
     });
@@ -115,7 +108,7 @@ class _TaskListScreenState extends State<TaskListScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.getBackground(context), // ✅ CORRIGÉ
+      backgroundColor: AppColors.getBackground(context),
       body: Consumer<TaskProvider>(
         builder: (context, taskProvider, child) {
           if (taskProvider.isLoading) {
@@ -123,7 +116,6 @@ class _TaskListScreenState extends State<TaskListScreen>
           }
 
           if (taskProvider.errorMessage != null) {
-            // Afficher un message lisible en cas d'erreur (par ex. index Firestore manquant)
             return CustomScrollView(
               slivers: [
                 SliverFillRemaining(
@@ -155,7 +147,6 @@ class _TaskListScreenState extends State<TaskListScreen>
                           const SizedBox(height: 16),
                           TextButton(
                             onPressed: () {
-                              // Ouvrir la console Firebase (non disponible ici) — instructions manuelles ci-dessous
                             },
                             child: const Text(
                               'Voir les indexes dans la console Firebase',
@@ -218,7 +209,7 @@ class _TaskListScreenState extends State<TaskListScreen>
       elevation: 0,
       flexibleSpace: Container(
         decoration: const BoxDecoration(
-          gradient: AppColors.primaryGradient, // ✅ CORRIGÉ
+          gradient: AppColors.primaryGradient,
         ),
         child: const FlexibleSpaceBar(
           title: Text(
@@ -230,7 +221,6 @@ class _TaskListScreenState extends State<TaskListScreen>
         ),
       ),
       actions: [
-        // Affichage de l'utilisateur connecté
         Consumer<AuthService>(
           builder: (context, authService, child) {
             final email = authService.currentUserEmail;
@@ -261,16 +251,8 @@ class _TaskListScreenState extends State<TaskListScreen>
           },
         ),
         const TaskSortButton(),
-        // ✅ DEBUG : Voir l'état du thème
         Consumer<ThemeProvider>(
           builder: (context, themeProvider, child) {
-            print(
-              '🌙 TaskListScreen: Theme brightness: ${Theme.of(context).brightness}',
-            );
-            print(
-              '🌙 TaskListScreen: ThemeProvider mode: ${themeProvider.themeMode}',
-            );
-
             return const Padding(
               padding: EdgeInsets.only(right: 8),
               child: ThemeSwitch(showLabel: false),
@@ -286,7 +268,6 @@ class _TaskListScreenState extends State<TaskListScreen>
     );
   }
 
-  /// Filtre les tâches selon la requête de recherche
   List<Task> _filterTasks(List<Task> tasks) {
     if (_searchQuery.isEmpty) return tasks;
 
@@ -303,7 +284,6 @@ class _TaskListScreenState extends State<TaskListScreen>
     }).toList();
   }
 
-  /// Barre de recherche élégante et animée
   Widget _buildSearchBar() {
     return SliverToBoxAdapter(
       child: Padding(

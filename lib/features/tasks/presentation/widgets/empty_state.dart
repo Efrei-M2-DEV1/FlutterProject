@@ -7,7 +7,6 @@ import '../../../../shared/widgets/custom_button.dart';
 import '../providers/task_provider.dart';
 import 'task_modal.dart';
 
-/// État vide élégant avec illustration et actions
 class EmptyState extends StatefulWidget {
   const EmptyState({super.key});
 
@@ -89,15 +88,12 @@ class _EmptyStateState extends State<EmptyState> with TickerProviderStateMixin {
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Illustration animée
                       ScaleTransition(
                         scale: _scaleAnimation,
                         child: _buildIllustration(hasNoTasks, currentFilter),
                       ),
 
                       const SizedBox(height: 32),
-
-                      // Texte principal
                       SlideTransition(
                         position: _slideAnimation,
                         child: _buildContent(hasNoTasks, currentFilter),
@@ -174,8 +170,6 @@ class _EmptyStateState extends State<EmptyState> with TickerProviderStateMixin {
         ),
 
         const SizedBox(height: 32),
-
-        // Boutons d'action
         _buildActionButtons(hasNoTasks, currentFilter),
       ],
     );
@@ -183,7 +177,6 @@ class _EmptyStateState extends State<EmptyState> with TickerProviderStateMixin {
 
   Widget _buildActionButtons(bool hasNoTasks, TaskFilter currentFilter) {
     if (hasNoTasks) {
-      // Première tâche
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -209,7 +202,6 @@ class _EmptyStateState extends State<EmptyState> with TickerProviderStateMixin {
         ],
       );
     } else {
-      // Filtres sans résultats
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [

@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../../core/theme/app_colors.dart';
 
-/// Page temporaire pour migrer les tâches existantes
 class MigrationScreen extends StatefulWidget {
   const MigrationScreen({super.key});
 
@@ -85,7 +84,6 @@ class _MigrationScreenState extends State<MigrationScreen> {
         _status = '✅ Migration terminée ! $count tâches migrées.';
       });
 
-      // Retourner à l'écran précédent après 2 secondes
       Future.delayed(const Duration(seconds: 2), () {
         if (mounted) Navigator.of(context).pop();
       });

@@ -5,7 +5,6 @@ import '../../core/theme/app_theme.dart';
 
 enum ButtonVariant { primary, secondary, outline, text }
 
-/// Bouton personnalisé avec plusieurs variantes
 class CustomButton extends StatelessWidget {
   final Widget child;
   final VoidCallback? onPressed;

@@ -9,13 +9,6 @@ import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../../data/auth_service.dart';
 
-/// Écran de connexion moderne et élégant
-///
-/// Fonctionnalités :
-/// - Design moderne avec gradient
-/// - Formulaire avec validation
-/// - Animation et feedback utilisateur
-/// - Navigation fluide
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -25,16 +18,13 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen>
     with SingleTickerProviderStateMixin {
-  // Contrôleurs pour les champs de texte
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  // États du formulaire
   bool _isLoading = false;
   bool _obscurePassword = true;
 
-  // Animation
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -43,7 +33,6 @@ class _LoginScreenState extends State<LoginScreen>
   void initState() {
     super.initState();
 
-    // Configuration des animations
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -58,7 +47,6 @@ class _LoginScreenState extends State<LoginScreen>
           CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
         );
 
-    // Démarrer l'animation
     _animationController.forward();
   }
 
@@ -70,13 +58,11 @@ class _LoginScreenState extends State<LoginScreen>
     super.dispose();
   }
 
-  /// Fonction de connexion (simulée pour l'instant)
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
-    // Utiliser le service d'authentification
     final authService = context.read<AuthService>();
     final result = await authService.login(
       _emailController.text.trim(),
@@ -88,10 +74,8 @@ class _LoginScreenState extends State<LoginScreen>
     setState(() => _isLoading = false);
 
     if (result.success) {
-      // Navigation vers les tâches
       context.goToTasks();
     } else {
-      // Afficher un message d'erreur
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(result.errorMessage ?? 'Erreur lors de la connexion'),
@@ -101,7 +85,6 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
-  /// Fonction pour gérer le mot de passe oublié
   Future<void> _handleForgotPassword() async {
     final emailController = TextEditingController();
     final formKey = GlobalKey<FormState>();
@@ -148,7 +131,6 @@ class _LoginScreenState extends State<LoginScreen>
     );
 
     if (emailToReset != null && mounted) {
-      // Simuler l'envoi de l'email
       setState(() => _isLoading = true);
 
       await Future.delayed(const Duration(seconds: 1));
@@ -198,29 +180,19 @@ class _LoginScreenState extends State<LoginScreen>
       child: Column(
         children: [
           const SizedBox(height: 60),
-
-          // ===== HEADER AVEC LOGO =====
           _buildHeader(),
-
           const SizedBox(height: 60),
-
-          // ===== FORMULAIRE DE CONNEXION =====
           _buildLoginForm(),
-
           const SizedBox(height: 30),
-
-          // ===== LIENS D'ACTIONS =====
           _buildActionLinks(),
         ],
       ),
     );
   }
 
-  /// Header avec logo et titre
   Widget _buildHeader() {
     return Column(
       children: [
-        // Logo de l'app
         Container(
           width: 100,
           height: 100,
@@ -243,8 +215,6 @@ class _LoginScreenState extends State<LoginScreen>
         ),
 
         const SizedBox(height: 24),
-
-        // Titre principal
         const Text(
           'Todo List Pro',
           style: TextStyle(
@@ -255,8 +225,6 @@ class _LoginScreenState extends State<LoginScreen>
         ),
 
         const SizedBox(height: 8),
-
-        // Sous-titre
         const Text(
           'Organisez votre vie, une tâche à la fois',
           style: TextStyle(fontSize: 16, color: Colors.white70),
@@ -266,7 +234,6 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  /// Formulaire de connexion
   Widget _buildLoginForm() {
     return Container(
       padding: AppTheme.paddingLarge,
@@ -286,7 +253,6 @@ class _LoginScreenState extends State<LoginScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Titre du formulaire
             Text(
               'Connexion',
               style: AppTextStyles.titleLarge(context),
@@ -302,8 +268,6 @@ class _LoginScreenState extends State<LoginScreen>
             ),
 
             const SizedBox(height: 32),
-
-            // Champ email
             CustomTextField(
               controller: _emailController,
               label: 'Email',
@@ -314,8 +278,6 @@ class _LoginScreenState extends State<LoginScreen>
             ),
 
             const SizedBox(height: 16),
-
-            // Champ mot de passe
             CustomTextField(
               controller: _passwordController,
               label: 'Mot de passe',
@@ -333,8 +295,6 @@ class _LoginScreenState extends State<LoginScreen>
             ),
 
             const SizedBox(height: 24),
-
-            // Bouton de connexion
             CustomButton(
               onPressed: _isLoading ? null : _handleLogin,
               isLoading: _isLoading,
@@ -346,11 +306,9 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  /// Liens d'actions (inscription, mot de passe oublié)
   Widget _buildActionLinks() {
     return Column(
       children: [
-        // Lien vers inscription
         TextButton(
           onPressed: () => context.goToRegister(),
           child: const Text(
@@ -358,8 +316,6 @@ class _LoginScreenState extends State<LoginScreen>
             style: TextStyle(color: Colors.white),
           ),
         ),
-
-        // Lien mot de passe oublié
         TextButton(
           onPressed: _handleForgotPassword,
           child: const Text(
@@ -371,7 +327,6 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  /// Validation de l'email
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Veuillez saisir votre email';
@@ -382,7 +337,6 @@ class _LoginScreenState extends State<LoginScreen>
     return null;
   }
 
-  /// Validation du mot de passe
   String? _validatePassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Veuillez saisir votre mot de passe';

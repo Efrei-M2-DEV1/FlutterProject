@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-/// Page de débogage pour tester la connexion Firestore
 class DebugFirestorePage extends StatefulWidget {
   const DebugFirestorePage({super.key});
 
@@ -30,7 +29,6 @@ class _DebugFirestorePageState extends State<DebugFirestorePage> {
   Future<void> _checkConnection() async {
     _addLog('🔍 Vérification de la connexion Firebase...');
 
-    // 1. Vérifier Firebase Auth
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       _addLog('❌ Aucun utilisateur connecté !');
@@ -39,17 +37,13 @@ class _DebugFirestorePageState extends State<DebugFirestorePage> {
     _addLog('✅ Utilisateur connecté: ${user.email}');
     _addLog('   UID: ${user.uid}');
 
-    // 2. Vérifier Firestore
     try {
       final firestore = FirebaseFirestore.instance;
       _addLog('📊 Instance Firestore créée');
-
-      // 3. Tester lecture de la collection tasks
       _addLog('📖 Tentative de lecture de la collection "tasks"...');
       final snapshot = await firestore.collection('tasks').get();
       _addLog('✅ Lecture réussie ! ${snapshot.docs.length} documents trouvés');
 
-      // 4. Afficher les documents existants
       if (snapshot.docs.isEmpty) {
         _addLog('⚠️  Collection vide - aucune tâche trouvée');
       } else {
@@ -101,7 +95,6 @@ class _DebugFirestorePageState extends State<DebugFirestorePage> {
       _addLog('✅ Tâche créée avec succès !');
       _addLog('   Document ID: ${docRef.id}');
 
-      // Relire pour vérifier
       await _checkConnection();
     } catch (e) {
       _addLog('❌ ERREUR lors de l\'écriture: $e');
@@ -139,7 +132,6 @@ service cloud.firestore {
       ),
       body: Column(
         children: [
-          // Zone d'actions
           Container(
             padding: const EdgeInsets.all(16),
             color: Colors.orange.shade50,
@@ -179,8 +171,6 @@ service cloud.firestore {
               ],
             ),
           ),
-
-          // Zone de logs
           Expanded(
             child: Container(
               color: Colors.grey.shade900,
@@ -216,8 +206,6 @@ service cloud.firestore {
               ),
             ),
           ),
-
-          // Indicateur de chargement
           if (_isLoading)
             const LinearProgressIndicator(
               backgroundColor: Colors.orange,

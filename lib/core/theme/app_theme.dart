@@ -3,9 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'app_colors.dart';
 
-/// Configuration des thèmes de l'application
 class AppTheme {
-  // ===== RAYONS DE BORDURE =====
   static const BorderRadius radiusSmall = BorderRadius.all(Radius.circular(8));
   static const BorderRadius radiusMedium = BorderRadius.all(
     Radius.circular(12),
@@ -15,12 +13,10 @@ class AppTheme {
     Radius.circular(24),
   );
 
-  // ===== ESPACEMENT =====
   static const EdgeInsets paddingSmall = EdgeInsets.all(8);
   static const EdgeInsets paddingMedium = EdgeInsets.all(16);
   static const EdgeInsets paddingLarge = EdgeInsets.all(24);
 
-  // ===== OMBRES =====
   static List<BoxShadow> get shadowSmall => [
     BoxShadow(
       color: Colors.black.withOpacity(0.05),
@@ -45,13 +41,10 @@ class AppTheme {
     ),
   ];
 
-  // ===== THÈME CLAIR =====
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-
-      // Couleurs principales
       colorScheme: const ColorScheme.light(
         primary: AppColors.primary,
         secondary: AppColors.secondary,
@@ -68,8 +61,6 @@ class AppTheme {
         surfaceVariant: AppColors.lightSurfaceVariant,
         onSurfaceVariant: AppColors.lightOnSurfaceVariant,
       ),
-
-      // Configuration de l'AppBar
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -82,8 +73,6 @@ class AppTheme {
           fontWeight: FontWeight.w600,
         ),
       ),
-
-      // Configuration des cartes
       cardTheme: CardThemeData(
         color: AppColors.lightSurface,
         elevation: 0,
@@ -92,8 +81,6 @@ class AppTheme {
           side: const BorderSide(color: AppColors.lightOutline, width: 1),
         ),
       ),
-
-      // Configuration des boutons
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
@@ -103,8 +90,6 @@ class AppTheme {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         ),
       ),
-
-      // Configuration des champs de texte
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.lightSurfaceVariant,
@@ -129,15 +114,11 @@ class AppTheme {
           borderSide: const BorderSide(color: AppColors.error, width: 2),
         ),
       ),
-
-      // Configuration du FAB
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 4,
       ),
-
-      // Configuration des bottom sheets
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: AppColors.lightSurface,
         shape: RoundedRectangleBorder(
@@ -147,13 +128,10 @@ class AppTheme {
     );
   }
 
-  // ===== THÈME SOMBRE =====
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-
-      // Couleurs principales
       colorScheme: const ColorScheme.dark(
         primary: AppColors.primary,
         secondary: AppColors.secondary,
@@ -170,8 +148,6 @@ class AppTheme {
         surfaceVariant: AppColors.darkSurfaceVariant,
         onSurfaceVariant: AppColors.darkOnSurfaceVariant,
       ),
-
-      // Configuration de l'AppBar
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -184,8 +160,6 @@ class AppTheme {
           fontWeight: FontWeight.w600,
         ),
       ),
-
-      // Configuration des cartes
       cardTheme: CardThemeData(
         color: AppColors.darkSurface,
         elevation: 0,
@@ -194,8 +168,6 @@ class AppTheme {
           side: const BorderSide(color: AppColors.darkOutline, width: 1),
         ),
       ),
-
-      // Configuration des boutons
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
@@ -205,8 +177,6 @@ class AppTheme {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         ),
       ),
-
-      // Configuration des champs de texte
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.darkSurfaceVariant,
@@ -231,15 +201,11 @@ class AppTheme {
           borderSide: const BorderSide(color: AppColors.error, width: 2),
         ),
       ),
-
-      // Configuration du FAB
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 4,
       ),
-
-      // Configuration des bottom sheets
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: AppColors.darkSurface,
         shape: RoundedRectangleBorder(

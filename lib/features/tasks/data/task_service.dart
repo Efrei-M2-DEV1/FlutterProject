@@ -71,7 +71,6 @@ class TaskService {
           ownerName =
               userDoc.data()?['name'] ?? userDoc.data()?['displayName'] ?? '';
         } catch (_) {
-          // ignore
         }
       }
 

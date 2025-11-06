@@ -7,7 +7,6 @@ import '../../../../core/theme/app_theme.dart';
 import '../../domain/models/task.dart';
 import '../../domain/models/task_category.dart';
 
-/// Tuile élégante pour afficher une tâche
 class TaskTile extends StatefulWidget {
   final Task task;
   final VoidCallback onTap;
@@ -130,15 +129,9 @@ class _TaskTileState extends State<TaskTile>
       padding: AppTheme.paddingMedium,
       child: Row(
         children: [
-          // Checkbox personnalisée
           _buildCustomCheckbox(),
-
           const SizedBox(width: 16),
-
-          // Contenu principal
           Expanded(child: _buildMainContent()),
-
-          // Actions
           _buildActions(),
         ],
       ),
@@ -175,7 +168,6 @@ class _TaskTileState extends State<TaskTile>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Titre avec style selon l'état
         Text(
           widget.task.title,
           style: TextStyle(
@@ -206,8 +198,6 @@ class _TaskTileState extends State<TaskTile>
         ],
 
         const SizedBox(height: 8),
-
-        // Métadonnées (priorité, date, créateur, assignés)
         _buildMetadata(),
       ],
     );
@@ -217,27 +207,20 @@ class _TaskTileState extends State<TaskTile>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Première ligne : Priorité et Date
         Wrap(
           spacing: 8,
           runSpacing: 4,
           children: [
-            // Priorité
             _buildPriorityChip(),
-
-            // Date d'échéance
             if (widget.task.dueDate != null) _buildDueDateChip(),
           ],
         ),
-
-        // Deuxième ligne : Tags/Catégories
         if (widget.task.tags.isNotEmpty) ...[
           const SizedBox(height: 8),
           Wrap(
             spacing: 6,
             runSpacing: 4,
             children: [
-              // Afficher tous les tags
               ...widget.task.tags.map((tagId) {
                 final category = TaskCategory.findById(tagId);
                 if (category == null) return const SizedBox.shrink();
@@ -275,8 +258,6 @@ class _TaskTileState extends State<TaskTile>
             ],
           ),
         ],
-
-        // Troisième ligne : Créateur et Utilisateurs assignés
         if (widget.task.ownerName.isNotEmpty ||
             widget.task.assignedTo.isNotEmpty) ...[
           const SizedBox(height: 8),
@@ -284,10 +265,7 @@ class _TaskTileState extends State<TaskTile>
             spacing: 8,
             runSpacing: 4,
             children: [
-              // Badge du créateur
               if (widget.task.ownerName.isNotEmpty) _buildOwnerBadge(),
-
-              // Badges des utilisateurs assignés
               if (widget.task.assignedTo.isNotEmpty) _buildAssignedUsersBadge(),
             ],
           ),
@@ -296,7 +274,6 @@ class _TaskTileState extends State<TaskTile>
     );
   }
 
-  /// Badge élégant pour afficher le créateur de la tâche
   Widget _buildOwnerBadge() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -316,7 +293,6 @@ class _TaskTileState extends State<TaskTile>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Avatar du créateur
           CircleAvatar(
             radius: 8,
             backgroundColor: AppColors.primary,
@@ -347,15 +323,8 @@ class _TaskTileState extends State<TaskTile>
     );
   }
 
-  /// Badge pour afficher les utilisateurs assignés (avatars empilés)
   Widget _buildAssignedUsersBadge() {
     final assignedCount = widget.task.assignedTo.length;
-
-    if (kDebugMode) {
-      print(
-        '🎨 TaskTile: Affichage badge assignés - task.id=${widget.task.id}, assignedCount=$assignedCount, assignedTo=${widget.task.assignedTo}',
-      );
-    }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -438,7 +407,6 @@ class _TaskTileState extends State<TaskTile>
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Bouton supprimer
         IconButton(
           onPressed: () => _showDeleteDialog(),
           icon: Icon(

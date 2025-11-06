@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../providers/task_provider.dart';
 
-/// Bouton d'options pour trier les tâches
 class TaskSortButton extends StatelessWidget {
   const TaskSortButton({super.key});
 

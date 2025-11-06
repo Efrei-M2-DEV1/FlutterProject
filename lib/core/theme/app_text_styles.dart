@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
 
-/// Styles de texte de l'application
 class AppTextStyles {
-  // ===== TITRES =====
   static TextStyle headlineLarge(BuildContext context) => TextStyle(
     fontSize: 32,
     fontWeight: FontWeight.bold,
@@ -23,7 +21,6 @@ class AppTextStyles {
     color: AppColors.getOnSurface(context),
   );
 
-  // ===== TITRES DE SECTION =====
   static TextStyle titleLarge(BuildContext context) => TextStyle(
     fontSize: 22,
     fontWeight: FontWeight.w600,
@@ -42,14 +39,12 @@ class AppTextStyles {
     color: AppColors.getOnSurface(context),
   );
 
-  // ===== ÉTIQUETTES =====
   static TextStyle labelLarge(BuildContext context) => TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.w500,
     color: AppColors.getOnSurfaceVariant(context),
   );
 
-  // ===== CORPS DE TEXTE =====
   static TextStyle bodyLarge(BuildContext context) => TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.normal,
@@ -68,7 +63,6 @@ class AppTextStyles {
     color: AppColors.getOnSurfaceVariant(context),
   );
 
-  // ===== STYLES SPÉCIAUX =====
   static TextStyle taskTitle(BuildContext context) => TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w600,
@@ -85,23 +79,21 @@ class AppTextStyles {
   static TextStyle taskDescription(BuildContext context) =>
       TextStyle(fontSize: 14, color: AppColors.getOnSurfaceVariant(context));
 
-  // ===== TITRE SECTION SPÉCIAL (pour "Filtrer les tâches") =====
   static TextStyle sectionTitle(BuildContext context) => TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w600,
     color: AppColors.getSectionTitle(context),
   );
 
-  // ===== STYLES CONSTANTS (pour compatibilité) =====
   static const TextStyle constantTitleLarge = TextStyle(
     fontSize: 22,
     fontWeight: FontWeight.w600,
-    color: Color(0xFF1F2937), // Couleur fixe pour les const
+    color: Color(0xFF1F2937),
   );
 
   static const TextStyle constantBodyMedium = TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.normal,
-    color: Color(0xFF6B7280), // Couleur fixe pour les const
+    color: Color(0xFF6B7280),
   );
 }
