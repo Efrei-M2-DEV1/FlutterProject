@@ -492,7 +492,7 @@ class _TaskModalState extends State<TaskModal> {
       children: [
         Expanded(
           child: CustomButton(
-            onPressed: _saveTask,
+            onPressed: () => Navigator.of(context).pop(),
             variant: ButtonVariant.outline,
             child: const Text('Annuler'),
           ),
@@ -503,7 +503,7 @@ class _TaskModalState extends State<TaskModal> {
         Expanded(
           flex: 2,
           child: CustomButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: _saveTask,
             child: Text(_isEditing ? 'Modifier' : 'Créer'),
           ),
         ),
