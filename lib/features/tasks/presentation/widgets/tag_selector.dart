@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../domain/models/task_category.dart';
 import '../../../../core/theme/app_colors.dart';
 
-/// Widget pour sélectionner les tags/catégories d'une tâche
 class TagSelector extends StatelessWidget {
   final List<String> selectedTags;
   final Function(String) onTagToggle;

@@ -11,7 +11,6 @@ import '../providers/task_provider.dart';
 import 'assign_users_dialog.dart';
 import 'tag_selector.dart';
 
-/// Modal élégant pour créer/éditer une tâche - VERSION STABLE
 class TaskModal extends StatefulWidget {
   final Task? task;
 
@@ -36,7 +35,6 @@ class _TaskModalState extends State<TaskModal> {
   void initState() {
     super.initState();
 
-    // Pré-remplir si on édite
     if (_isEditing) {
       _titleController.text = widget.task!.title;
       _descriptionController.text = widget.task!.description;
@@ -83,12 +81,7 @@ class _TaskModalState extends State<TaskModal> {
     final taskProvider = context.read<TaskProvider>();
     final currentUser = FirebaseAuth.instance.currentUser;
 
-    print('🔐 TaskModal - Utilisateur connecté: ${currentUser?.uid}');
-    print('🔐 TaskModal - Email: ${currentUser?.email}');
-    print('🔐 TaskModal - DisplayName: ${currentUser?.displayName}');
-
     if (currentUser == null) {
-      // L'utilisateur n'est pas connecté, on ne peut pas créer de tâche
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Vous devez être connecté pour créer une tâche'),
@@ -99,18 +92,20 @@ class _TaskModalState extends State<TaskModal> {
     }
 
     if (_isEditing) {
-      // Modifier la tâche existante
-      final updatedTask = widget.task!.copyWith(
+      final currentTask = taskProvider.allTasks.firstWhere(
+        (t) => t.id == widget.task!.id,
+        orElse: () => widget.task!,
+      );
+
+      final updatedTask = currentTask.copyWith(
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim(),
         priority: _selectedPriority,
         dueDate: _selectedDueDate,
         tags: _selectedTags,
       );
-      print('📝 TaskModal - Modification tâche: ${updatedTask.id}');
       taskProvider.updateTask(updatedTask);
     } else {
-      // Créer une nouvelle tâche avec ownerId et ownerName
       final newTask = Task(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         title: _titleController.text.trim(),
@@ -124,24 +119,18 @@ class _TaskModalState extends State<TaskModal> {
         assignedTo: const [],
         tags: _selectedTags,
       );
-      print('✨ TaskModal - Création nouvelle tâche:');
-      print('   - title: ${newTask.title}');
-      print('   - ownerId: ${newTask.ownerId}');
-      print('   - ownerName: ${newTask.ownerName}');
-      print('   - tags: ${newTask.tags}');
       taskProvider.addTask(newTask);
     }
 
-    Navigator.of(context).pop(); // ✅ Fermeture explicite
+    Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      // ✅ HAUTEUR FIXE pour éviter les problèmes de contraintes
       height: MediaQuery.of(context).size.height * 0.9,
       decoration: BoxDecoration(
-        color: AppColors.surface, // ✅ Couleur dynamique
+        color: AppColors.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
       ),
       child: Column(
@@ -171,7 +160,6 @@ class _TaskModalState extends State<TaskModal> {
       ),
       child: Column(
         children: [
-          // Indicateur de drag
           Container(
             width: 40,
             height: 4,
@@ -242,7 +230,6 @@ class _TaskModalState extends State<TaskModal> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Titre de la tâche
           CustomTextField(
             controller: _titleController,
             label: 'Titre de la tâche',
@@ -257,8 +244,6 @@ class _TaskModalState extends State<TaskModal> {
           ),
 
           const SizedBox(height: 20),
-
-          // Description
           CustomTextField(
             controller: _descriptionController,
             label: 'Description (optionnel)',
@@ -268,18 +253,10 @@ class _TaskModalState extends State<TaskModal> {
           ),
 
           const SizedBox(height: 30),
-
-          // Sélection de priorité
           _buildPrioritySelector(),
-
           const SizedBox(height: 30),
-
-          // Sélection de date
           _buildDateSelector(),
-
           const SizedBox(height: 30),
-
-          // Sélection de tags/catégories
           TagSelector(
             selectedTags: _selectedTags,
             onTagToggle: (tagId) {
@@ -292,19 +269,13 @@ class _TaskModalState extends State<TaskModal> {
               });
             },
           ),
-
-          // Bouton d'assignation (seulement en mode édition)
           if (_isEditing) ...[
             const SizedBox(height: 30),
             _buildAssignUsersButton(),
           ],
 
           const SizedBox(height: 40),
-
-          // Boutons d'action
           _buildActionButtons(),
-
-          // Espacement supplémentaire pour le scroll
           const SizedBox(height: 20),
         ],
       ),
@@ -381,7 +352,7 @@ class _TaskModalState extends State<TaskModal> {
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: AppColors.onSurface, // ✅ Couleur dynamique
+            color: AppColors.onSurface,
           ),
         ),
 
@@ -392,7 +363,7 @@ class _TaskModalState extends State<TaskModal> {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.surfaceVariant, // ✅ Couleur dynamique
+              color: AppColors.surfaceVariant,
               borderRadius: AppTheme.radiusMedium,
               border: Border.all(color: AppColors.primary.withOpacity(0.2)),
             ),
@@ -402,7 +373,7 @@ class _TaskModalState extends State<TaskModal> {
                   Icons.calendar_today,
                   color: _selectedDueDate != null
                       ? AppColors.primary
-                      : AppColors.onSurfaceVariant, // ✅ Couleur dynamique
+                      : AppColors.onSurfaceVariant,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -412,9 +383,8 @@ class _TaskModalState extends State<TaskModal> {
                         : 'Sélectionner une date d\'échéance',
                     style: TextStyle(
                       color: _selectedDueDate != null
-                          ? AppColors
-                                .onSurface // ✅ Couleur dynamique
-                          : AppColors.onSurfaceVariant, // ✅ Couleur dynamique
+                          ? AppColors.onSurface
+                          : AppColors.onSurfaceVariant,
                       fontWeight: _selectedDueDate != null
                           ? FontWeight.w500
                           : FontWeight.normal,
@@ -440,7 +410,6 @@ class _TaskModalState extends State<TaskModal> {
   }
 
   Widget _buildAssignUsersButton() {
-    // Récupérer la tâche à jour depuis le Provider si on modifie une tâche existante
     final currentTask = widget.task != null
         ? context.watch<TaskProvider>().allTasks.firstWhere(
             (t) => t.id == widget.task!.id,

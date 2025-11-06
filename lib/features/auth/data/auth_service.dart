@@ -2,17 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
-/// Service d'authentification utilisant Firebase Auth + création d'un document
-/// utilisateur dans Cloud Firestore sous la collection `users`.
-///
-/// Remarque: les fichiers natifs `google-services.json` (Android) et
-/// `GoogleService-Info.plist` (iOS) doivent être ajoutés localement.
-
-/// Service d'authentification simple (en attendant Firebase)
-///
-/// Credentials génériques pour tester l'app :
-/// Email: admin@todolist.com
-/// Password: 123456
 class AuthService extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -21,21 +10,18 @@ class AuthService extends ChangeNotifier {
   bool _isLoading = false;
 
   AuthService() {
-    // Écoute les changements d'auth et notifie
     _auth.authStateChanges().listen((u) {
       _user = u;
       notifyListeners();
     });
   }
 
-  // ===== GETTERS =====
   User? get user => _user;
   bool get isLoggedIn => _user != null;
   bool get isLoading => _isLoading;
   String? get currentUserEmail => _user?.email;
   String? get userId => _user?.uid;
 
-  /// Connexion via Firebase Auth
   Future<AuthResult> login(String email, String password) async {
     try {
       _isLoading = true;
@@ -47,9 +33,6 @@ class AuthService extends ChangeNotifier {
       );
 
       _user = credential.user;
-      debugPrint(
-        'AuthService.login -> uid=${_user?.uid} email=${_user?.email}',
-      );
       _isLoading = false;
       notifyListeners();
       return AuthResult.success();
@@ -64,7 +47,6 @@ class AuthService extends ChangeNotifier {
     }
   }
 
-  /// Inscription avec création d'un document user en Firestore
   Future<AuthResult> register(
     String email,
     String password,
@@ -81,10 +63,6 @@ class AuthService extends ChangeNotifier {
 
       _user = credential.user;
 
-      // Créer/mettre à jour le document utilisateur
-      debugPrint(
-        'AuthService.register -> uid=${_user?.uid} email=${_user?.email}',
-      );
       if (_user != null) {
         try {
           await _firestore.collection('users').doc(_user!.uid).set({
@@ -93,9 +71,6 @@ class AuthService extends ChangeNotifier {
             'createdAt': FieldValue.serverTimestamp(),
           });
         } on FirebaseException catch (e) {
-          debugPrint(
-            'AuthService.register firestore error: ${e.code} ${e.message}',
-          );
           _isLoading = false;
           notifyListeners();
           return AuthResult.error('Erreur Firestore: ${e.message} (${e.code})');
@@ -116,14 +91,12 @@ class AuthService extends ChangeNotifier {
     }
   }
 
-  /// Déconnexion
   Future<void> logout() async {
     await _auth.signOut();
     _user = null;
     notifyListeners();
   }
 
-  /// Réinitialisation du mot de passe
   Future<AuthResult> resetPassword(String email) async {
     try {
       _isLoading = true;
@@ -147,14 +120,12 @@ class AuthService extends ChangeNotifier {
     }
   }
 
-  /// Optionnel: vérification d'état au démarrage (déjà couvert par authStateChanges)
   Future<void> checkAuthStatus() async {
     _user = _auth.currentUser;
     notifyListeners();
   }
 }
 
-/// Résultat d'une opération d'authentification
 class AuthResult {
   final bool success;
   final String? errorMessage;

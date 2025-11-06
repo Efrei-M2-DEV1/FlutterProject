@@ -3,14 +3,6 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme.dart';
 
-/// Champ de saisie personnalisé et réutilisable
-///
-/// Fonctionnalités :
-/// - Design cohérent avec le thème
-/// - Validation intégrée
-/// - Icônes prefix/suffix
-/// - Support de tous les types de clavier
-/// - États focus/erreur gérés automatiquement
 class CustomTextField extends StatelessWidget {
   final TextEditingController? controller;
   final String label;
@@ -46,7 +38,6 @@ class CustomTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Label du champ
         Text(
           label,
           style: TextStyle(
@@ -57,8 +48,6 @@ class CustomTextField extends StatelessWidget {
         ),
 
         const SizedBox(height: 8),
-
-        // Champ de saisie
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
@@ -73,23 +62,16 @@ class CustomTextField extends StatelessWidget {
             color: AppColors.getOnSurface(context),
           ),
           decoration: InputDecoration(
-            // Texte d'aide
             hintText: hint,
             hintStyle: TextStyle(
               color: AppColors.getOnSurfaceVariant(context).withOpacity(0.7),
             ),
-
-            // Icônes
             prefixIcon: prefixIcon != null
                 ? Icon(prefixIcon, color: AppColors.primary)
                 : null,
             suffixIcon: suffixIcon,
-
-            // Style du conteneur
             filled: true,
             fillColor: AppColors.getSurfaceVariant(context),
-
-            // Bordures
             border: OutlineInputBorder(
               borderRadius: AppTheme.radiusMedium,
               borderSide: BorderSide.none,
@@ -113,8 +95,6 @@ class CustomTextField extends StatelessWidget {
               borderRadius: AppTheme.radiusMedium,
               borderSide: const BorderSide(color: AppColors.error, width: 2),
             ),
-
-            // Espacement interne
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 16,

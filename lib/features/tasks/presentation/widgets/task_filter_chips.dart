@@ -5,7 +5,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../providers/task_provider.dart';
 
-/// Chips pour filtrer les tâches avec couleurs spécifiques
 class TaskFilterChips extends StatelessWidget {
   const TaskFilterChips({super.key});
 
@@ -16,7 +15,6 @@ class TaskFilterChips extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Titre amélioré pour le mode dark
             Padding(
               padding: const EdgeInsets.only(bottom: 12, left: 4),
               child: Text(
@@ -24,14 +22,10 @@ class TaskFilterChips extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.getSectionTitle(
-                    context,
-                  ), // ✅ Visible en mode dark
+                  color: AppColors.getSectionTitle(context),
                 ),
               ),
             ),
-
-            // Chips de filtrage avec couleurs spécifiques
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -94,7 +88,6 @@ class TaskFilterChips extends StatelessWidget {
     );
   }
 
-  /// Retourne les couleurs spécifiques pour chaque filtre
   FilterColors _getFilterColors(TaskFilter filter) {
     switch (filter) {
       case TaskFilter.all:
@@ -107,7 +100,7 @@ class TaskFilterChips extends StatelessWidget {
 
       case TaskFilter.pending:
         return FilterColors(
-          selectedColor: AppColors.warning, // 🟡 Orange pour "À faire"
+          selectedColor: AppColors.warning,
           backgroundColor: AppColors.warning.withOpacity(0.1),
           borderColor: AppColors.warning.withOpacity(0.3),
           textColor: AppColors.warning,
@@ -115,7 +108,7 @@ class TaskFilterChips extends StatelessWidget {
 
       case TaskFilter.completed:
         return FilterColors(
-          selectedColor: AppColors.success, // 🟢 Vert pour "Terminées"
+          selectedColor: AppColors.success,
           backgroundColor: AppColors.success.withOpacity(0.1),
           borderColor: AppColors.success.withOpacity(0.3),
           textColor: AppColors.success,
@@ -123,7 +116,7 @@ class TaskFilterChips extends StatelessWidget {
 
       case TaskFilter.highPriority:
         return FilterColors(
-          selectedColor: AppColors.error, // 🔴 Rouge pour "Priorité haute"
+          selectedColor: AppColors.error,
           backgroundColor: AppColors.error.withOpacity(0.1),
           borderColor: AppColors.error.withOpacity(0.3),
           textColor: AppColors.error,
@@ -132,7 +125,6 @@ class TaskFilterChips extends StatelessWidget {
   }
 }
 
-/// Classe pour organiser les couleurs d'un filtre
 class FilterColors {
   final Color selectedColor;
   final Color backgroundColor;

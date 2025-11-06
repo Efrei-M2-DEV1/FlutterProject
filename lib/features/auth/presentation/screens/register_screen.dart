@@ -10,13 +10,6 @@ import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../../data/auth_service.dart';
 
-/// Écran d'inscription moderne et élégant
-///
-/// Fonctionnalités :
-/// - Design moderne avec gradient
-/// - Formulaire avec validation
-/// - Animation et feedback utilisateur
-/// - Navigation fluide
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -26,7 +19,6 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen>
     with SingleTickerProviderStateMixin {
-  // Contrôleurs pour les champs de texte
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -34,12 +26,10 @@ class _RegisterScreenState extends State<RegisterScreen>
       TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  // États du formulaire
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
-  // Animation
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -48,7 +38,6 @@ class _RegisterScreenState extends State<RegisterScreen>
   void initState() {
     super.initState();
 
-    // Configuration des animations
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -63,7 +52,6 @@ class _RegisterScreenState extends State<RegisterScreen>
           CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
         );
 
-    // Démarrer l'animation
     _animationController.forward();
   }
 
@@ -77,13 +65,11 @@ class _RegisterScreenState extends State<RegisterScreen>
     super.dispose();
   }
 
-  /// Fonction d'inscription
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
-    // Utiliser le service d'authentification fourni par Provider
     final authService = context.read<AuthService>();
     final result = await authService.register(
       _emailController.text.trim(),
@@ -96,7 +82,6 @@ class _RegisterScreenState extends State<RegisterScreen>
     setState(() => _isLoading = false);
 
     if (result.success) {
-      // Afficher un message de succès
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Inscription réussie !'),
@@ -104,10 +89,8 @@ class _RegisterScreenState extends State<RegisterScreen>
         ),
       );
 
-      // Navigation vers les tâches
       context.goToTasks();
     } else {
-      // Afficher un message d'erreur
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(result.errorMessage ?? 'Erreur lors de l\'inscription'),
@@ -146,29 +129,19 @@ class _RegisterScreenState extends State<RegisterScreen>
       child: Column(
         children: [
           const SizedBox(height: 40),
-
-          // ===== HEADER AVEC LOGO =====
           _buildHeader(),
-
           const SizedBox(height: 40),
-
-          // ===== FORMULAIRE D'INSCRIPTION =====
           _buildRegisterForm(),
-
           const SizedBox(height: 24),
-
-          // ===== LIEN VERS CONNEXION =====
           _buildLoginLink(),
         ],
       ),
     );
   }
 
-  /// Header avec logo et titre
   Widget _buildHeader() {
     return Column(
       children: [
-        // Logo de l'app
         Container(
           width: 100,
           height: 100,
@@ -191,8 +164,6 @@ class _RegisterScreenState extends State<RegisterScreen>
         ),
 
         const SizedBox(height: 24),
-
-        // Titre principal
         const Text(
           'Créer un compte',
           style: TextStyle(
@@ -203,8 +174,6 @@ class _RegisterScreenState extends State<RegisterScreen>
         ),
 
         const SizedBox(height: 8),
-
-        // Sous-titre
         const Text(
           'Rejoignez-nous et organisez vos tâches',
           style: TextStyle(fontSize: 16, color: Colors.white70),
@@ -214,7 +183,6 @@ class _RegisterScreenState extends State<RegisterScreen>
     );
   }
 
-  /// Formulaire d'inscription
   Widget _buildRegisterForm() {
     return Container(
       padding: AppTheme.paddingLarge,
@@ -234,7 +202,6 @@ class _RegisterScreenState extends State<RegisterScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Titre du formulaire
             Text(
               'Inscription',
               style: AppTextStyles.titleLarge(context),
@@ -250,8 +217,6 @@ class _RegisterScreenState extends State<RegisterScreen>
             ),
 
             const SizedBox(height: 32),
-
-            // Champ nom
             CustomTextField(
               controller: _nameController,
               label: 'Nom complet',
@@ -262,8 +227,6 @@ class _RegisterScreenState extends State<RegisterScreen>
             ),
 
             const SizedBox(height: 16),
-
-            // Champ email
             CustomTextField(
               controller: _emailController,
               label: 'Email',
@@ -274,8 +237,6 @@ class _RegisterScreenState extends State<RegisterScreen>
             ),
 
             const SizedBox(height: 16),
-
-            // Champ mot de passe
             CustomTextField(
               controller: _passwordController,
               label: 'Mot de passe',
@@ -293,8 +254,6 @@ class _RegisterScreenState extends State<RegisterScreen>
             ),
 
             const SizedBox(height: 16),
-
-            // Champ confirmation mot de passe
             CustomTextField(
               controller: _confirmPasswordController,
               label: 'Confirmer le mot de passe',
@@ -315,8 +274,6 @@ class _RegisterScreenState extends State<RegisterScreen>
             ),
 
             const SizedBox(height: 24),
-
-            // Bouton d'inscription
             CustomButton(
               onPressed: _isLoading ? null : _handleRegister,
               isLoading: _isLoading,
@@ -328,7 +285,6 @@ class _RegisterScreenState extends State<RegisterScreen>
     );
   }
 
-  /// Lien vers la page de connexion
   Widget _buildLoginLink() {
     return TextButton(
       onPressed: () => context.goToLogin(),
@@ -339,7 +295,6 @@ class _RegisterScreenState extends State<RegisterScreen>
     );
   }
 
-  /// Validation du nom
   String? _validateName(String? value) {
     if (value == null || value.isEmpty) {
       return 'Veuillez saisir votre nom';
@@ -350,7 +305,6 @@ class _RegisterScreenState extends State<RegisterScreen>
     return null;
   }
 
-  /// Validation de l'email
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Veuillez saisir votre email';
@@ -361,7 +315,6 @@ class _RegisterScreenState extends State<RegisterScreen>
     return null;
   }
 
-  /// Validation du mot de passe
   String? _validatePassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Veuillez saisir votre mot de passe';
@@ -372,7 +325,6 @@ class _RegisterScreenState extends State<RegisterScreen>
     return null;
   }
 
-  /// Validation de la confirmation du mot de passe
   String? _validateConfirmPassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Veuillez confirmer votre mot de passe';

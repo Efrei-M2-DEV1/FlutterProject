@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_provider.dart';
 
-/// Switch pour basculer entre thème clair/sombre - VERSION CORRIGÉE
 class ThemeSwitch extends StatefulWidget {
   final bool showLabel;
   final EdgeInsets? padding;
@@ -26,14 +25,12 @@ class _ThemeSwitchState extends State<ThemeSwitch>
   void initState() {
     super.initState();
 
-    // Animation principale pour le slide
     _controller = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
 
-    // Animation de pulse pour le feedback
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 150),
       vsync: this,
@@ -52,12 +49,10 @@ class _ThemeSwitchState extends State<ThemeSwitch>
   }
 
   void _onThemeToggle() {
-    // Animation de feedback
     _pulseController.forward().then((_) {
       _pulseController.reverse();
     });
 
-    // Changer le thème
     context.read<ThemeProvider>().toggleTheme();
   }
 
@@ -65,10 +60,8 @@ class _ThemeSwitchState extends State<ThemeSwitch>
   Widget build(BuildContext context) {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
-        // ✅ SYNCHRONISATION : Utiliser l'état réel du thème
         final isDark = Theme.of(context).brightness == Brightness.dark;
 
-        // Synchroniser l'animation avec l'état réel
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (isDark && !_controller.isCompleted) {
             _controller.forward();
@@ -92,8 +85,6 @@ class _ThemeSwitchState extends State<ThemeSwitch>
                 ),
                 const SizedBox(width: 8),
               ],
-
-              // ✅ SWITCH AMÉLIORÉ
               ScaleTransition(
                 scale: _pulseAnimation,
                 child: GestureDetector(
@@ -121,11 +112,10 @@ class _ThemeSwitchState extends State<ThemeSwitch>
                         ),
                         child: Stack(
                           children: [
-                            // ✅ INDICATEUR SYNCHRONISÉ
                             AnimatedPositioned(
                               duration: const Duration(milliseconds: 300),
                               curve: Curves.easeInOut,
-                              left: isDark ? 30 : 2, // ✅ Basé sur le thème réel
+                              left: isDark ? 30 : 2,
                               top: 2,
                               child: Container(
                                 width: 28,
@@ -148,9 +138,7 @@ class _ThemeSwitchState extends State<ThemeSwitch>
                                       isDark
                                           ? Icons.dark_mode
                                           : Icons.light_mode,
-                                      key: ValueKey(
-                                        isDark,
-                                      ), // ✅ Key basée sur l'état réel
+                                      key: ValueKey(isDark),
                                       size: 16,
                                       color: isDark
                                           ? AppColors.primary

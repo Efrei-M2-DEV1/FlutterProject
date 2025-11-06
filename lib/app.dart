@@ -8,7 +8,6 @@ import 'features/auth/data/auth_service.dart';
 import 'features/tasks/presentation/providers/task_provider.dart';
 import 'features/tasks/data/task_service.dart';
 
-/// Widget racine de l'application avec support du thème dark/light
 class TodoApp extends StatelessWidget {
   const TodoApp({super.key});
 
@@ -16,16 +15,9 @@ class TodoApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        // Provider de thème
         ChangeNotifierProvider<ThemeProvider>(create: (_) => ThemeProvider()),
-
-        // Service d'authentification
         ChangeNotifierProvider<AuthService>(create: (_) => AuthService()),
-
-        // Service Firestore pour les tâches
         Provider<TaskService>(create: (_) => TaskService()),
-
-        // Provider des tâches (dépendant du TaskService)
         ChangeNotifierProxyProvider<TaskService, TaskProvider>(
           create: (_) => TaskProvider(),
           update: (_, taskService, taskProvider) {
@@ -37,11 +29,6 @@ class TodoApp extends StatelessWidget {
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
-          print(
-            '🌙 App: Reconstruction avec themeMode: ${themeProvider.themeMode}',
-          ); // ✅ Debug
-
-          // ✅ INITIALISATION CORRIGÉE
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!themeProvider.isDarkMode &&
                 themeProvider.themeMode == ThemeMode.system) {
@@ -52,16 +39,10 @@ class TodoApp extends StatelessWidget {
           return MaterialApp.router(
             title: 'Todo List Pro',
             debugShowCheckedModeBanner: false,
-
-            // ✅ THÈMES CONFIGURÉS
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
-            themeMode:
-                themeProvider.themeMode, // ✅ Utilise directement le themeMode
-            // Configuration de la navigation
+            themeMode: themeProvider.themeMode,
             routerConfig: AppRouter.router,
-
-            // Configuration pour l'accessibilité
             builder: (context, child) {
               return MediaQuery(
                 data: MediaQuery.of(

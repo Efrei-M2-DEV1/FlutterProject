@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-/// Widget de test pour vérifier la connexion Firestore
 class FirestoreTestWidget extends StatefulWidget {
   const FirestoreTestWidget({super.key});
 
@@ -24,7 +23,6 @@ class _FirestoreTestWidgetState extends State<FirestoreTestWidget> {
     _addLog('🔍 Test de connexion Firestore...');
 
     try {
-      // Test 1: Lire la collection tasks
       _addLog('📖 Lecture de la collection tasks...');
       final snapshot = await _firestore.collection('tasks').get();
       _addLog('✅ Collection tasks lue avec succès');
@@ -32,8 +30,6 @@ class _FirestoreTestWidgetState extends State<FirestoreTestWidget> {
 
       if (snapshot.docs.isEmpty) {
         _addLog('⚠️ Aucune tâche trouvée');
-        
-        // Test 2: Essayer de créer une tâche de test
         _addLog('📝 Tentative de création d\'une tâche de test...');
         final docRef = await _firestore.collection('tasks').add({
           'title': 'Tâche de test',

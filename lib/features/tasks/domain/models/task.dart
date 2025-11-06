@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
 
-/// Modèle d'une tâche
 @immutable
 class Task {
   final String id;
@@ -14,9 +13,6 @@ class Task {
   final DateTime createdAt;
   final DateTime? dueDate;
   final List<String> tags;
-
-  /// Liste des UIDs des utilisateurs assignés à cette tâche (en plus du créateur)
-  /// Le créateur (ownerId) a toujours accès, pas besoin de l'ajouter ici
   final List<String> assignedTo;
 
   const Task({
@@ -33,7 +29,6 @@ class Task {
     this.assignedTo = const [],
   });
 
-  /// Créer une copie modifiée de la tâche
   Task copyWith({
     String? id,
     String? title,
@@ -62,7 +57,6 @@ class Task {
     );
   }
 
-  /// Basculer l'état de completion ✅ MÉTHODE MANQUANTE
   Task toggleCompleted() {
     return copyWith(isCompleted: !isCompleted);
   }
@@ -80,7 +74,6 @@ class Task {
     return 'Task(id: $id, title: $title, isCompleted: $isCompleted, priority: $priority)';
   }
 
-  /// Sérialisation pour Firestore
   Map<String, dynamic> toMap() {
     final map = <String, dynamic>{
       'title': title,
@@ -88,21 +81,17 @@ class Task {
       'isCompleted': isCompleted,
       'priority': priority.value,
       'tags': tags,
-      'assignedTo': assignedTo, // Liste des UIDs assignés
+      'assignedTo': assignedTo,
     };
 
-    // Owner info
     map['userId'] = ownerId;
     map['ownerName'] = ownerName;
-
-    // createdAt and dueDate: include if present. Firestore accepts DateTime.
     map['createdAt'] = createdAt;
     if (dueDate != null) map['dueDate'] = dueDate;
 
     return map;
   }
 
-  /// Désérialisation depuis Firestore / Map
   factory Task.fromMap(Map<String, dynamic> map, {required String id}) {
     DateTime parseDate(dynamic v) {
       if (v == null) return DateTime.now();
@@ -112,7 +101,6 @@ class Task {
         if (v is String) return DateTime.parse(v);
         if (v is Timestamp) return v.toDate();
         if (v is Map && v['seconds'] != null) {
-          // Map representation from some platforms
           final seconds = v['seconds'];
           return DateTime.fromMillisecondsSinceEpoch(
             (seconds is int)
@@ -167,7 +155,6 @@ class Task {
   }
 }
 
-/// Niveaux de priorité des tâches
 enum TaskPriority {
   low('Faible', 1),
   medium('Moyenne', 2),

@@ -11,7 +11,6 @@ class AuthPage extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () {
-            // TODO: implémenter login; pour l’instant on va sur /tasks
             context.go('/tasks');
           },
           child: const Text('Se connecter (mock)'),

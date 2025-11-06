@@ -5,7 +5,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../domain/models/task.dart';
 import '../providers/task_provider.dart';
 
-/// Dialog élégant et moderne pour assigner des utilisateurs à une tâche
 class AssignUsersDialog extends StatefulWidget {
   final Task task;
 
@@ -27,12 +26,16 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
+  late List<String> _initialAssignedUsers;
+
   @override
   void initState() {
     super.initState();
+
+    _initialAssignedUsers = List<String>.from(widget.task.assignedTo);
+
     _loadUsers();
 
-    // Animations d'entrée
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
@@ -96,6 +99,68 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
     });
   }
 
+  Future<void> _cancelChanges() async {
+    try {
+      final provider = context.read<TaskProvider>();
+      final currentTask = provider.allTasks.firstWhere(
+        (t) => t.id == widget.task.id,
+      );
+      final currentAssignedUsers = currentTask.assignedTo;
+
+      final usersToRemove = currentAssignedUsers
+          .where((userId) => !_initialAssignedUsers.contains(userId))
+          .toList();
+
+      final usersToAdd = _initialAssignedUsers
+          .where((userId) => !currentAssignedUsers.contains(userId))
+          .toList();
+
+      for (final userId in usersToRemove) {
+        await provider.unassignUserFromTask(widget.task.id, userId);
+      }
+
+      for (final userId in usersToAdd) {
+        await provider.assignUserToTask(widget.task.id, userId);
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.undo, color: Colors.white),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    'Modifications annulées',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: AppColors.getOnSurface(context).withOpacity(0.8),
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur lors de l\'annulation: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _toggleUserAssignment(String userId, bool isAssigned) async {
     try {
       final provider = context.read<TaskProvider>();
@@ -105,7 +170,6 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
         await provider.assignUserToTask(widget.task.id, userId);
       }
 
-      // Animation de succès
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -196,7 +260,6 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
   }
 
   Widget _buildHeader() {
-    // Récupérer la tâche à jour depuis le Provider
     final currentTask = context.watch<TaskProvider>().allTasks.firstWhere(
       (t) => t.id == widget.task.id,
       orElse: () => widget.task,
@@ -415,14 +478,12 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
     final userName = user['name'] as String? ?? 'Sans nom';
     final userEmail = user['email'] as String? ?? '';
 
-    // Récupérer la tâche à jour depuis le Provider
     final currentTask = context.watch<TaskProvider>().allTasks.firstWhere(
       (t) => t.id == widget.task.id,
       orElse: () => widget.task,
     );
     final isAssigned = currentTask.assignedTo.contains(userId);
 
-    // Couleur de l'avatar basée sur le nom
     final avatarColor = _getAvatarColor(userName);
 
     return AnimatedContainer(
@@ -537,7 +598,6 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
   }
 
   Widget _buildFooter() {
-    // Récupérer la tâche à jour depuis le Provider
     final currentTask = context.watch<TaskProvider>().allTasks.firstWhere(
       (t) => t.id == widget.task.id,
       orElse: () => widget.task,
@@ -562,6 +622,15 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
               ),
             ),
           ),
+          TextButton(
+            onPressed: _cancelChanges,
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.getOnSurface(context).withOpacity(0.7),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            ),
+            child: const Text('Annuler'),
+          ),
+          const SizedBox(width: 8),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(),
             style: ElevatedButton.styleFrom(
@@ -572,14 +641,13 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text('Terminé'),
+            child: const Text('Modifier'),
           ),
         ],
       ),
     );
   }
 
-  /// Génère une couleur d'avatar basée sur le nom
   Color _getAvatarColor(String name) {
     final colors = [
       AppColors.primary,

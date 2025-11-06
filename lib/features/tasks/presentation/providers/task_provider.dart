@@ -5,9 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../../domain/models/task.dart';
 import '../../data/task_service.dart';
 
-/// Provider pour gérer l'état des tâches
 class TaskProvider extends ChangeNotifier {
-  // ===== DONNÉES PRIVÉES =====
   final List<Task> _tasks = [];
   late TaskService _taskService;
   StreamSubscription<List<Task>>? _tasksSub;
@@ -16,29 +14,19 @@ class TaskProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
 
-  // ===== GETTERS PUBLICS =====
-
-  /// Liste de toutes les tâches
   List<Task> get allTasks => List.unmodifiable(_tasks);
   String? get errorMessage => _errorMessage;
 
-  /// Liste des tâches filtrées et triées
   List<Task> get filteredTasks {
     var filtered = _applyFilter(_tasks);
     var sorted = _applySort(filtered);
     return sorted;
   }
 
-  /// Filtre actuel
   TaskFilter get currentFilter => _currentFilter;
-
-  /// Tri actuel
   TaskSort get currentSort => _currentSort;
-
-  /// État de chargement
   bool get isLoading => _isLoading;
 
-  /// Statistiques
   TaskStats get stats {
     final total = _tasks.length;
     final completed = _tasks.where((task) => task.isCompleted).length;
@@ -57,7 +45,6 @@ class TaskProvider extends ChangeNotifier {
     );
   }
 
-  /// Permet d'injecter le service et d'écouter le stream
   void setTaskService(TaskService service) {
     _taskService = service;
     _tasksSub?.cancel();
@@ -74,7 +61,6 @@ class TaskProvider extends ChangeNotifier {
         notifyListeners();
       },
       onError: (e, st) {
-        // Firestore can emit errors (for example when a required index is missing).
         _errorMessage = e?.toString() ?? 'Erreur inconnue sur Firestore';
         _isLoading = false;
         notifyListeners();
@@ -92,25 +78,18 @@ class TaskProvider extends ChangeNotifier {
     super.dispose();
   }
 
-  // ===== ACTIONS CRUD =====
-
-  /// Ajouter une nouvelle tâche
   Future<void> addTask(Task task) async {
     await _taskService.addTask(task);
-    // la mise à jour arrive via le stream
   }
 
-  /// Modifier une tâche existante
   Future<void> updateTask(Task updatedTask) async {
     await _taskService.updateTask(updatedTask);
   }
 
-  /// Supprimer une tâche
   Future<void> deleteTask(String taskId) async {
     await _taskService.deleteTask(taskId);
   }
 
-  /// Basculer l'état de completion d'une tâche
   Future<void> toggleTaskCompletion(String taskId) async {
     final index = _tasks.indexWhere((task) => task.id == taskId);
     if (index != -1) {
@@ -119,38 +98,28 @@ class TaskProvider extends ChangeNotifier {
     }
   }
 
-  /// Assigner un utilisateur à une tâche
   Future<void> assignUserToTask(String taskId, String userId) async {
     await _taskService.assignUserToTask(taskId, userId);
   }
 
-  /// Retirer un utilisateur assigné d'une tâche
   Future<void> unassignUserFromTask(String taskId, String userId) async {
     await _taskService.unassignUserFromTask(taskId, userId);
   }
 
-  /// Récupérer la liste de tous les utilisateurs
   Future<List<Map<String, dynamic>>> getAllUsers() async {
     return await _taskService.getAllUsers();
   }
 
-  // ===== FILTRES ET TRI =====
-
-  /// Changer le filtre
   void setFilter(TaskFilter filter) {
     _currentFilter = filter;
     notifyListeners();
   }
 
-  /// Changer le tri
   void setSort(TaskSort sort) {
     _currentSort = sort;
     notifyListeners();
   }
 
-  // ===== MÉTHODES PRIVÉES =====
-
-  /// Appliquer le filtre actuel
   List<Task> _applyFilter(List<Task> tasks) {
     switch (_currentFilter) {
       case TaskFilter.all:
@@ -168,7 +137,6 @@ class TaskProvider extends ChangeNotifier {
     }
   }
 
-  /// Appliquer le tri actuel
   List<Task> _applySort(List<Task> tasks) {
     switch (_currentSort) {
       case TaskSort.createdAt:
@@ -182,9 +150,6 @@ class TaskProvider extends ChangeNotifier {
     }
   }
 
-  // ===== DONNÉES DE TEST =====
-
-  /// Charger des données de test
   void loadTestData() {
     _isLoading = true;
     notifyListeners();
@@ -239,7 +204,6 @@ class TaskProvider extends ChangeNotifier {
   }
 }
 
-/// Filtres disponibles pour les tâches
 enum TaskFilter {
   all('Toutes'),
   pending('À faire'),
@@ -250,7 +214,6 @@ enum TaskFilter {
   final String label;
 }
 
-/// Options de tri pour les tâches
 enum TaskSort {
   createdAt('Date de création'),
   dueDate('Date d\'échéance');
@@ -259,7 +222,6 @@ enum TaskSort {
   final String label;
 }
 
-/// Statistiques des tâches
 class TaskStats {
   final int total;
   final int completed;

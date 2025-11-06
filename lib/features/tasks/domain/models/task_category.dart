@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Catégories prédéfinies pour les tâches
 class TaskCategory {
   final String id;
   final String label;
