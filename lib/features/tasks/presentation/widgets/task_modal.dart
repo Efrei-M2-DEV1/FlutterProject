@@ -104,7 +104,7 @@ class _TaskModalState extends State<TaskModal> {
         (t) => t.id == widget.task!.id,
         orElse: () => widget.task!,
       );
-      
+
       // Modifier la tâche existante en gardant les assignations actuelles
       final updatedTask = currentTask.copyWith(
         title: _titleController.text.trim(),

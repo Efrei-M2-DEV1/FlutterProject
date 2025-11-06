@@ -26,17 +26,17 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  
+
   // Sauvegarder l'état initial pour permettre l'annulation
   late List<String> _initialAssignedUsers;
 
   @override
   void initState() {
     super.initState();
-    
+
     // Sauvegarder l'état initial des assignations
     _initialAssignedUsers = List<String>.from(widget.task.assignedTo);
-    
+
     _loadUsers();
 
     // Animations d'entrée
@@ -107,7 +107,9 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
   Future<void> _cancelChanges() async {
     try {
       final provider = context.read<TaskProvider>();
-      final currentTask = provider.allTasks.firstWhere((t) => t.id == widget.task.id);
+      final currentTask = provider.allTasks.firstWhere(
+        (t) => t.id == widget.task.id,
+      );
       final currentAssignedUsers = currentTask.assignedTo;
 
       // Trouver les utilisateurs à retirer (qui ont été ajoutés)
@@ -152,7 +154,7 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
             ),
           ),
         );
-        
+
         // Fermer le dialog après avoir annulé
         Navigator.of(context).pop();
       }
