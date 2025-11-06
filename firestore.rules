@@ -1,0 +1,44 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Règles pour la collection 'users'
+    match /users/{userId} {
+      // Tout utilisateur authentifié peut lire TOUS les documents utilisateurs
+      // (nécessaire pour l'assignation de tâches)
+      allow read: if request.auth != null;
+      
+      // Tout utilisateur authentifié peut créer son propre document
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // Tout utilisateur authentifié peut mettre à jour son propre document
+      allow update: if request.auth != null && request.auth.uid == userId;
+      
+      // Aucun utilisateur ne peut supprimer un document utilisateur
+      allow delete: if false;
+    }
+    
+    // Règles pour la collection 'tasks'
+    match /tasks/{taskId} {
+      // Lecture : autorisée si l'utilisateur est le créateur OU s'il est dans assignedTo
+      allow read: if request.auth != null && (
+        resource.data.userId == request.auth.uid ||
+        request.auth.uid in resource.data.get('assignedTo', [])
+      );
+      
+      // Création : autorisée si l'utilisateur est authentifié
+      // Le userId doit correspondre à l'utilisateur qui crée la tâche
+      allow create: if request.auth != null && 
+        request.resource.data.userId == request.auth.uid;
+      
+      // Mise à jour : autorisée si l'utilisateur est le créateur
+      // On autorise la modification de TOUS les champs SAUF userId et ownerName
+      allow update: if request.auth != null && 
+        resource.data.userId == request.auth.uid;
+      
+      // Suppression : autorisée si l'utilisateur est le créateur
+      allow delete: if request.auth != null && 
+        resource.data.userId == request.auth.uid;
+    }
+  }
+}
