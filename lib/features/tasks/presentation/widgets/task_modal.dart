@@ -99,8 +99,14 @@ class _TaskModalState extends State<TaskModal> {
     }
 
     if (_isEditing) {
-      // Modifier la tâche existante
-      final updatedTask = widget.task!.copyWith(
+      // Récupérer la tâche actuelle depuis le provider pour avoir les assignations à jour
+      final currentTask = taskProvider.allTasks.firstWhere(
+        (t) => t.id == widget.task!.id,
+        orElse: () => widget.task!,
+      );
+      
+      // Modifier la tâche existante en gardant les assignations actuelles
+      final updatedTask = currentTask.copyWith(
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim(),
         priority: _selectedPriority,
@@ -108,6 +114,7 @@ class _TaskModalState extends State<TaskModal> {
         tags: _selectedTags,
       );
       print('📝 TaskModal - Modification tâche: ${updatedTask.id}');
+      print('   - assignedTo conservé: ${updatedTask.assignedTo}');
       taskProvider.updateTask(updatedTask);
     } else {
       // Créer une nouvelle tâche avec ownerId et ownerName

@@ -26,10 +26,17 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+  
+  // Sauvegarder l'état initial pour permettre l'annulation
+  late List<String> _initialAssignedUsers;
 
   @override
   void initState() {
     super.initState();
+    
+    // Sauvegarder l'état initial des assignations
+    _initialAssignedUsers = List<String>.from(widget.task.assignedTo);
+    
     _loadUsers();
 
     // Animations d'entrée
@@ -96,12 +103,79 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
     });
   }
 
+  /// Annule toutes les modifications et restaure l'état initial
+  Future<void> _cancelChanges() async {
+    try {
+      final provider = context.read<TaskProvider>();
+      final currentTask = provider.allTasks.firstWhere((t) => t.id == widget.task.id);
+      final currentAssignedUsers = currentTask.assignedTo;
+
+      // Trouver les utilisateurs à retirer (qui ont été ajoutés)
+      final usersToRemove = currentAssignedUsers
+          .where((userId) => !_initialAssignedUsers.contains(userId))
+          .toList();
+
+      // Trouver les utilisateurs à rajouter (qui ont été retirés)
+      final usersToAdd = _initialAssignedUsers
+          .where((userId) => !currentAssignedUsers.contains(userId))
+          .toList();
+
+      // Effectuer les modifications pour restaurer l'état initial
+      for (final userId in usersToRemove) {
+        await provider.unassignUserFromTask(widget.task.id, userId);
+      }
+
+      for (final userId in usersToAdd) {
+        await provider.assignUserToTask(widget.task.id, userId);
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.undo, color: Colors.white),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    'Modifications annulées',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: AppColors.getOnSurface(context).withOpacity(0.8),
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+        
+        // Fermer le dialog après avoir annulé
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur lors de l\'annulation: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _toggleUserAssignment(String userId, bool isAssigned) async {
     try {
       final provider = context.read<TaskProvider>();
       if (isAssigned) {
+        // L'utilisateur EST déjà assigné → on le RETIRE
         await provider.unassignUserFromTask(widget.task.id, userId);
       } else {
+        // L'utilisateur N'EST PAS assigné → on l'AJOUTE
         await provider.assignUserToTask(widget.task.id, userId);
       }
 
@@ -562,6 +636,17 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
               ),
             ),
           ),
+          // Bouton Annuler - Restaure l'état initial
+          TextButton(
+            onPressed: _cancelChanges,
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.getOnSurface(context).withOpacity(0.7),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            ),
+            child: const Text('Annuler'),
+          ),
+          const SizedBox(width: 8),
+          // Bouton Modifier - Ferme le dialog (changements déjà appliqués)
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(),
             style: ElevatedButton.styleFrom(
@@ -572,7 +657,7 @@ class _AssignUsersDialogState extends State<AssignUsersDialog>
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text('Terminé'),
+            child: const Text('Modifier'),
           ),
         ],
       ),
