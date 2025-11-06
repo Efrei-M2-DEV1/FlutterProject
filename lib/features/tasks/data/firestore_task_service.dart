@@ -2,21 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../domain/models/task.dart';
 
-/// Service Firestore pour gérer les tâches
-/// Gère la communication avec Firebase Firestore
 class FirestoreTaskService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Nom de la collection dans Firestore
   static const String _collectionName = 'tasks';
 
-  /// Référence à la collection des tâches
   CollectionReference<Map<String, dynamic>> get _tasksCollection =>
       _firestore.collection(_collectionName);
 
-  // ==================== CONVERSION ====================
-
-  /// Convertir un modèle Task en Map pour Firestore
   Map<String, dynamic> _taskToMap(Task task) {
     return {
       'title': task.title,
@@ -34,7 +27,6 @@ class FirestoreTaskService {
     };
   }
 
-  /// Convertir un document Firestore en modèle Task
   Task _mapToTask(String id, Map<String, dynamic> data) {
     return Task(
       id: id,
@@ -51,27 +43,16 @@ class FirestoreTaskService {
     );
   }
 
-  // ==================== OPÉRATIONS CRUD ====================
-
-  /// Créer une nouvelle tâche dans Firestore
   Future<String> createTask(Task task) async {
     try {
       final taskData = _taskToMap(task);
-      print('🔥 Firestore createTask - Données envoyées: $taskData');
-      print('🔥 userId: ${taskData['userId']}');
-      print('🔥 ownerName: ${taskData['ownerName']}');
-      print('🔥 tags: ${taskData['tags']}');
-
       final docRef = await _tasksCollection.add(taskData);
-      print('✅ Tâche créée avec succès: ${docRef.id}');
       return docRef.id;
     } catch (e) {
-      print('❌ Erreur Firestore createTask: $e');
       throw Exception('Erreur lors de la création de la tâche: $e');
     }
   }
 
-  /// Récupérer toutes les tâches
   Future<List<Task>> getAllTasks() async {
     try {
       final snapshot = await _tasksCollection
@@ -86,7 +67,6 @@ class FirestoreTaskService {
     }
   }
 
-  /// Observer toutes les tâches en temps réel
   Stream<List<Task>> watchAllTasks() {
     try {
       return _tasksCollection
@@ -102,7 +82,6 @@ class FirestoreTaskService {
     }
   }
 
-  /// Récupérer une tâche par son ID
   Future<Task?> getTaskById(String id) async {
     try {
       final doc = await _tasksCollection.doc(id).get();
@@ -115,7 +94,6 @@ class FirestoreTaskService {
     }
   }
 
-  /// Observer les tâches par statut
   Stream<List<Task>> watchTasksByStatus(bool isCompleted) {
     try {
       return _tasksCollection
@@ -132,7 +110,6 @@ class FirestoreTaskService {
     }
   }
 
-  /// Mettre à jour une tâche
   Future<void> updateTask(Task task) async {
     try {
       await _tasksCollection.doc(task.id).update(_taskToMap(task));
@@ -141,7 +118,6 @@ class FirestoreTaskService {
     }
   }
 
-  /// Supprimer une tâche
   Future<void> deleteTask(String id) async {
     try {
       await _tasksCollection.doc(id).delete();
@@ -150,7 +126,6 @@ class FirestoreTaskService {
     }
   }
 
-  /// Basculer l'état de complétion d'une tâche
   Future<void> toggleTaskCompletion(String id) async {
     try {
       final task = await getTaskById(id);
@@ -164,7 +139,6 @@ class FirestoreTaskService {
     }
   }
 
-  /// Supprimer toutes les tâches complétées
   Future<int> deleteCompletedTasks() async {
     try {
       final snapshot = await _tasksCollection
@@ -185,7 +159,6 @@ class FirestoreTaskService {
     }
   }
 
-  /// Récupérer les statistiques des tâches
   Future<Map<String, int>> getTaskStats() async {
     try {
       final allTasks = await getAllTasks();
